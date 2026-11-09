@@ -1,0 +1,68 @@
+<view class="rd-page">
+  <view wx:if="{{viewState === 'missing'}}" class="rd-empty">
+    <text>没有找到这一章，请从知识库重新进入。</text>
+    <view class="back-btn" bindtap="onOpenLibrary">返回知识库</view>
+  </view>
+
+  <block wx:if="{{viewState === 'ready'}}">
+    <!-- 章头 -->
+    <view class="rd-header">
+      <view class="rd-topics" wx:if="{{topicTags.length}}">
+        <text class="rd-topic" wx:for="{{topicTags}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="rd-title">{{chapter.title}}</view>
+      <view class="rd-meta">{{bookTitle}} · 第 {{sec}} 章 · {{chapter.count}} 条建议 · 约 {{readMinutes}} 分钟{{updatedLabel ? ' · 更新 ' + updatedLabel : ''}}</view>
+      <view class="rd-summary" wx:if="{{chapter.intro}}">{{chapter.intro}}</view>
+    </view>
+
+    <!-- 条目 -->
+    <view class="rd-step" wx:for="{{list}}" wx:key="id">
+      <view class="s-no">NO.{{item.noLabel}}</view>
+      <view class="s-title">{{item.title}}</view>
+      <view class="s-plain" wx:if="{{item.plain}}">{{item.plain}}</view>
+      <view class="s-tip" wx:if="{{item.tip}}"><text class="s-tip-k">怎么说</text>{{item.tip}}</view>
+
+      <view class="s-chips">
+        <text class="s-chip" wx:if="{{item.grade}}">{{item.grade}}</text>
+        <text class="s-chip dim" wx:if="{{item.lens}}">{{item.lens}}</text>
+        <text class="s-chip warn" wx:if="{{item.disputed}}">有争议</text>
+      </view>
+
+      <view class="s-folds">
+        <block wx:if="{{item.costText}}">
+          <view class="fold {{item.costOpen ? '' : 'closed'}}" data-idx="{{index}}" data-field="costOpen" catchtap="onToggleFold">成本<text class="fv">▾</text></view>
+          <view class="fold-body" wx:if="{{item.costOpen}}">{{item.costText}}</view>
+        </block>
+        <block wx:if="{{item.gainText}}">
+          <view class="fold {{item.gainOpen ? '' : 'closed'}}" data-idx="{{index}}" data-field="gainOpen" catchtap="onToggleFold">收益<text class="fv">▾</text></view>
+          <view class="fold-body" wx:if="{{item.gainOpen}}">{{item.gainText}}</view>
+        </block>
+        <block wx:if="{{item.remark}}">
+          <view class="fold {{item.noteOpen ? '' : 'closed'}}" data-idx="{{index}}" data-field="noteOpen" catchtap="onToggleFold">备注<text class="fv">▾</text></view>
+          <view class="fold-body" wx:if="{{item.noteOpen}}">{{item.remark}}</view>
+        </block>
+        <block wx:if="{{item.source}}">
+          <view class="fold {{item.refsOpen ? '' : 'closed'}}" data-idx="{{index}}" data-field="refsOpen" catchtap="onToggleFold">来源<text class="fv">▾</text></view>
+          <view class="fold-body" wx:if="{{item.refsOpen}}">
+            <view>{{item.source}}</view>
+            <view class="src-line" wx:for="{{item.links}}" wx:for-item="link" wx:key="*this">{{link}}</view>
+            <view class="s-ev" wx:if="{{item.evType}}">证据类型：{{item.evType}}</view>
+          </view>
+        </block>
+      </view>
+
+      <view class="s-actions">
+        <text class="s-link" data-id="{{item.id}}" catchtap="onItemTap">查看条目详情 ›</text>
+      </view>
+    </view>
+
+    <view class="rd-more" wx:if="{{hasMore}}" bindtap="loadMore">已显示 {{shownCount}} / {{chapter.count}} 条 · 点击加载更多</view>
+    <view class="rd-more" wx:else>本章已全部显示</view>
+
+    <!-- 翻章 -->
+    <view class="rd-nav">
+      <view class="rd-nav-btn {{prevSec ? '' : 'off'}}" data-sec="{{prevSec}}" bindtap="onChapterNav">‹ 上一章</view>
+      <view class="rd-nav-btn {{nextSec ? '' : 'off'}}" data-sec="{{nextSec}}" bindtap="onChapterNav">下一章 ›</view>
+    </view>
+  </block>
+</view>

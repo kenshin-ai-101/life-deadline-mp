@@ -1,0 +1,33 @@
+.masthead { padding: 20rpx 4rpx 28rpx; }
+.brand { font-size: 46rpx; font-weight: 600; color: #1F3A5F; letter-spacing: .04em; }
+.tagline { display: block; margin-top: 10rpx; font-size: 25rpx; color: #6B778C; }
+
+.aid-entry {
+  display: flex; align-items: center;
+  background: #C0392B; border-radius: 16rpx;
+  padding: 32rpx 30rpx; margin: 8rpx 0 12rpx; color: #FFFFFF;
+  box-shadow: 0 6rpx 20rpx rgba(192,57,43,.18);
+}
+.aid-kicker { display: block; font-size: 21rpx; letter-spacing: .14em; opacity: .82; }
+.aid-title { display: block; font-size: 40rpx; font-weight: 600; margin: 8rpx 0 6rpx; }
+.aid-desc { display: block; font-size: 24rpx; opacity: .9; }
+.aid-arrow { font-size: 56rpx; font-weight: 200; opacity: .8; margin-left: 16rpx; }
+
+.event-grid { display: flex; flex-wrap: wrap; }
+.event-cell {
+  width: calc(50% - 10rpx); margin-bottom: 20rpx;
+  background: #FFFFFF; border: 1rpx solid #E3E8EF; border-radius: 14rpx;
+  padding: 22rpx 20rpx; box-sizing: border-box;
+}
+.event-cell:nth-child(odd) { margin-right: 20rpx; }
+.event-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48rpx; height: 48rpx; border-radius: 10rpx;
+  background: #EDF3FB; color: #1F3A5F; font-size: 25rpx; font-weight: 600;
+  margin-bottom: 14rpx;
+}
+.event-name { display: block; font-size: 29rpx; font-weight: 600; color: #1F2A37; }
+.event-count { display: block; margin-top: 8rpx; font-size: 21rpx; color: #8A94A6; }
+
+.timeline-card { padding: 24rpx 26rpx; }
+.empty-inline { padding: 30rpx 26rpx; }

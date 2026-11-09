@@ -1,0 +1,76 @@
+<view class="page">
+  <view class="family-head">
+    <text class="t-lg">替家人查，才是真需求</text>
+    <text class="t-small" style="display:block;margin-top:10rpx">一人整理，全家受益。清单按年龄和状况从原书条目生成，不是硬编码。</text>
+  </view>
+
+  <view class="notice notice-blue">
+    只填四个字段：称呼、年龄、性别、主要状况。不采集姓名全称、身份证号、手机号、病历或检查报告，数据只存在这台手机。
+  </view>
+
+  <view class="section-head">
+    <text class="section-title">家庭成员</text>
+    <text class="section-label">{{members.length}} / {{maxLimit}}</text>
+  </view>
+
+  <view wx:if="{{members.length === 0}}" class="empty">
+    <view class="empty-icon">○</view>
+    <text class="t-body">还没有成员卡</text>
+    <text class="t-small" style="margin-top:10rpx">建一张，就能生成专属的「该做 / 别做」清单。</text>
+  </view>
+
+  <view class="member-card" wx:for="{{members}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+    <view class="avatar">{{item.initials}}</view>
+    <view class="grow">
+      <view class="row">
+        <text class="t-title">{{item.name}}</text>
+        <text class="tag tag-plain" wx:if="{{item.elder}}">长辈端</text>
+      </view>
+      <text class="t-small" style="display:block;margin-top:6rpx">{{item.age}} 岁 · {{item.gender || '未填'}} · {{item.conditionText}}</text>
+    </view>
+    <text class="remove-btn" data-id="{{item.id}}" catchtap="removeMember">×</text>
+    <text class="chev">›</text>
+  </view>
+
+  <button class="btn btn-primary" style="margin-top:24rpx" bindtap="openForm" wx:if="{{members.length < maxLimit}}">＋ 新建成员卡</button>
+  <view wx:else class="notice">本地演示版最多 {{maxLimit}} 位成员（免费 {{freeLimit}} 位，家庭版 {{maxLimit}} 位）。</view>
+
+  <view class="section-head"><text class="section-title">给长辈用</text><text class="section-label">ELDER MODE</text></view>
+  <view class="card elder-entry" bindtap="goElder">
+    <text class="t-title">打开长辈端</text>
+    <text class="t-small" style="display:block;margin-top:10rpx">大字、一屏、只读、一键拨号。无登录、无弹窗、无诱导分享。</text>
+    <text class="section-more" style="display:block;margin-top:16rpx">进入 ›</text>
+  </view>
+
+  <view class="disclaimer">
+    分享到家庭群的卡片只含成员称呼、待办数量和一句摘要，不带任何健康状况细节。
+    静态版没有账号体系，跨设备同步与成员绑定需在接入云服务后启用。
+  </view>
+
+  <view wx:if="{{showForm}}" class="mask" bindtap="closeForm">
+    <view class="sheet" catchtap="noop">
+      <text class="t-title">新建成员卡</text>
+      <view wx:if="{{formError}}" class="notice notice-danger" style="margin-top:16rpx">{{formError}}</view>
+
+      <text class="field-label" style="margin-top:24rpx">称呼（不要填全名）</text>
+      <input class="form-input" placeholder="妈妈 / 爸爸 / 小宝" value="{{form.name}}" bindinput="onName" maxlength="10" />
+
+      <text class="field-label" style="margin-top:20rpx">年龄</text>
+      <input class="form-input" type="number" placeholder="例如 68" value="{{form.age}}" bindinput="onAge" maxlength="3" />
+
+      <text class="field-label" style="margin-top:20rpx">性别（可不填）</text>
+      <picker mode="selector" range="{{genders}}" value="{{form.genderIndex}}" bindchange="onGender">
+        <view class="sheet-picker">{{genders[form.genderIndex]}} ›</view>
+      </picker>
+
+      <text class="field-label" style="margin-top:20rpx">主要状况（可多选）</text>
+      <view class="chip-row">
+        <text class="chip {{item.selected ? 'chip-on' : ''}}"
+              wx:for="{{conditionOptions}}" wx:key="value" data-value="{{item.value}}" bindtap="toggleCondition">{{item.value}}</text>
+      </view>
+
+      <button class="btn btn-primary" style="margin-top:28rpx" bindtap="submit">保存</button>
+      <button class="btn btn-ghost" style="margin-top:12rpx" bindtap="closeForm">取消</button>
+    </view>
+  </view>
+</view>

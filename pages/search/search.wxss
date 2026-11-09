@@ -1,0 +1,16 @@
+/* 搜索 · 按书筛选 chips（跨两本指南） */
+.book-filter { display: flex; gap: 14rpx; flex-wrap: wrap; padding: 20rpx 0 4rpx; }
+.bf-chip {
+  font-size: 23rpx;
+  padding: 10rpx 22rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #E3E8EF;
+  background: #FFFFFF;
+  color: #6B778C;
+}
+.bf-chip.on {
+  background: #EDF3FB;
+  border-color: #4A6FA5;
+  color: #1F3A5F;
+  font-weight: 600;
+}

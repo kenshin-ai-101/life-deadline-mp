@@ -1,0 +1,52 @@
+<view class="page">
+  <view wx:if="{{viewState === 'missing'}}" class="card"><text class="t-body">这张成员卡已不存在。</text></view>
+
+  <block wx:elif="{{viewState === 'ready'}}">
+    <view class="card-dark">
+      <text class="t-mono">MEMBER CARD · 仅存本机</text>
+      <text class="t-lg t-white" style="display:block;margin-top:12rpx">{{member.name}}</text>
+      <text class="t-small" style="color:rgba(255,255,255,.8);display:block;margin-top:8rpx">{{member.age}} 岁 · {{member.gender || '性别未填'}} · {{conditionText}}</text>
+      <view class="tag-line" style="margin-top:16rpx">
+        <text class="tag tag-outline" style="color:#fff;border-color:rgba(255,255,255,.4)" wx:for="{{matchedLabels}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="notice notice-blue">
+      清单条目全部来自原书，按人群标签与标题关键词生成，不硬编码。上游内容更新后重跑同步脚本即自动刷新；刷新不会覆盖你已加入的记录。
+    </view>
+
+    <view class="section-head"><text class="section-title">该做</text><text class="section-label">{{doList.length}} 条</text></view>
+    <view wx:if="{{doList.length === 0}}" class="card"><text class="t-small">按当前条件没有匹配到条目，可以补填主要状况。</text></view>
+    <view class="member-item" wx:for="{{doList}}" wx:key="id">
+      <view class="row-top">
+        <view class="grow" data-id="{{item.id}}" bindtap="goItem">
+          <text class="t-title">{{item.title}}</text>
+          <text class="t-small" style="display:block;margin-top:8rpx">{{item.plain}}</text>
+          <text class="tag tag-plain" style="margin-top:10rpx">{{item.ruleLabel}}</text>
+        </view>
+      </view>
+      <view class="row-between" style="margin-top:16rpx">
+        <text class="section-more" data-id="{{item.id}}" bindtap="goItem">看条目 ›</text>
+        <text class="save-link {{item.saved ? 'saved' : ''}}" data-id="{{item.id}}" bindtap="toggleSave">{{item.saved ? '✓ 已在成员清单' : '＋ 加入成员清单'}}</text>
+      </view>
+    </view>
+
+    <view class="section-head"><text class="section-title">别做</text><text class="section-label">{{dontList.length}} 条</text></view>
+    <view wx:if="{{dontList.length === 0}}" class="card"><text class="t-small">当前条件没有匹配到「别做」条目。</text></view>
+    <view class="member-item member-item-no" wx:for="{{dontList}}" wx:key="id" data-id="{{item.id}}" bindtap="goItem">
+      <text class="t-title">{{item.title}}</text>
+      <text class="t-small" style="display:block;margin-top:8rpx">{{item.plain}}</text>
+    </view>
+
+    <view class="section-head"><text class="section-title">长辈端</text></view>
+    <view class="card" bindtap="goElder">
+      <text class="t-title">用大字模式打开这份清单</text>
+      <text class="t-small" style="display:block;margin-top:10rpx">只读、一屏、一键拨号。语音朗读需接入微信同声传译插件，静态版暂未提供。</text>
+    </view>
+
+    <view class="disclaimer">
+      分享到家庭群的卡片只含成员称呼、待办数量与一句摘要，不含健康状况细节。
+      静态版没有账号体系，跨设备指派与同步需在接入云服务后启用。
+    </view>
+  </block>
+</view>

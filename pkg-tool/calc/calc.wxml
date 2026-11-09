@@ -1,0 +1,43 @@
+<view class="page">
+  <view class="notice">
+    书中没有可直接套用的统一参数，下面预填的都是示例输入，不是书中口径。请按自己的数字改；结果不给倾向性结论。
+  </view>
+
+  <view class="chip-row">
+    <text class="chip {{activeKey === item.key ? 'chip-on' : ''}}"
+          wx:for="{{types}}" wx:key="key" data-key="{{item.key}}" bindtap="tapType">{{item.name}}</text>
+  </view>
+
+  <view class="card" style="margin-top:24rpx" wx:if="{{active}}">
+    <text class="t-title">{{active.name}}</text>
+    <text class="t-small" style="display:block;margin-top:8rpx">相关讨论在{{active.back}}，计算口径由本页给出，不代表原书结论。</text>
+
+    <view class="field" wx:for="{{fields}}" wx:key="key">
+      <text class="field-label">{{item.label}}</text>
+      <input class="field-input" type="digit" value="{{item.value}}"
+             data-index="{{index}}" bindinput="onInput" />
+    </view>
+
+    <view wx:if="{{error}}" class="notice notice-danger" style="margin-top:16rpx">{{error}}</view>
+    <button class="btn btn-primary" style="margin-top:24rpx" bindtap="run">按我填的数字算</button>
+  </view>
+
+  <block wx:if="{{results.length > 0}}">
+    <view class="section-head"><text class="section-title">计算结果</text><text class="section-label">纯前端</text></view>
+    <view class="card">
+      <view class="calc-row" wx:for="{{results}}" wx:key="label">
+        <text class="t-small">{{item.label}}</text>
+        <text class="calc-value">{{item.value}}</text>
+      </view>
+    </view>
+    <view class="notice notice-blue">
+      按你输入的数字计算，不构成投资或职业建议。同一笔钱的机会成本、政策变化和当地口径都没有计入。
+    </view>
+    <button class="btn btn-ghost btn-sm" bindtap="goCatalog">去知识库看{{active.back}}</button>
+  </block>
+
+  <view class="disclaimer">
+    四个计算器均为简化模型：养老只算本金回收、房贷用单利近似、养育按固定增长率外推、读书只算收入差。
+    默认值是示例占位，不是书中数据，也不是任何机构的测算结果。
+  </view>
+</view>

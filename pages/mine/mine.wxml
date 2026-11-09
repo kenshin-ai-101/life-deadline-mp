@@ -1,0 +1,52 @@
+<view class="page">
+  <view class="card-dark">
+    <text class="t-mono">LOCAL FIRST · NO LOGIN</text>
+    <text class="t-lg t-white" style="display:block;margin-top:12rpx">人生时限</text>
+    <text class="t-small" style="color:rgba(255,255,255,.8);display:block;margin-top:10rpx">全部数据只存在这台手机，没有账号、没有上传、没有广告。</text>
+  </view>
+
+  <view class="stat-grid">
+    <view class="stat-cell" wx:for="{{stats}}" wx:key="label">
+      <text class="stat-num">{{item.value}}</text>
+      <text class="t-mute">{{item.label}}</text>
+    </view>
+  </view>
+
+  <view class="section-head"><text class="section-title">内容版本</text><text class="section-label">DATA</text></view>
+  <view class="card" bindtap="copyVersion">
+    <view class="row-between"><text class="t-title">{{meta.commit}}</text><text class="section-more">点此复制 ›</text></view>
+    <text class="t-small" style="display:block;margin-top:10rpx">{{meta.sections}} 节 · {{meta.items}} 条 · {{meta.aidCards}} 张急救卡</text>
+    <text class="t-small">生成于 {{meta.builtAt}}</text>
+    <text class="t-mute" style="display:block;margin-top:8rpx">{{meta.source}} · 点击复制完整版本信息</text>
+  </view>
+
+  <view class="section-head"><text class="section-title">功能入口</text></view>
+  <view class="card" style="padding:0 28rpx">
+    <view class="list-item row-between" bindtap="goCalc"><text class="t-body">算账器（4 个）</text><text class="chev">›</text></view>
+    <view class="list-item row-between" bindtap="goElder"><text class="t-body">长辈端大字模式</text><text class="chev">›</text></view>
+    <view class="list-item row-between" bindtap="goAid"><text class="t-body">处境急救卡</text><text class="chev">›</text></view>
+    <view class="list-item row-between" bindtap="copyFeedback"><text class="t-body">反馈时限错误</text><text class="chev">›</text></view>
+  </view>
+
+  <view class="section-head"><text class="section-title">这一版没做的</text><text class="section-label">HONEST LIMITS</text></view>
+  <view class="card">
+    <view class="limit-row" wx:for="{{limits}}" wx:key="*this">
+      <text class="limit-dot">·</text><text class="t-small">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="section-head"><text class="section-title">本地埋点</text><text class="section-label">仅本机可见</text></view>
+  <view class="card">
+    <view wx:if="{{trackRows.length === 0}}" class="t-mute">还没有记录</view>
+    <view class="row-between track-row" wx:for="{{trackRows}}" wx:key="key">
+      <text class="t-small">{{item.label}}</text><text class="t-mono">{{item.count}}</text>
+    </view>
+  </view>
+
+  <button class="btn btn-outline" style="margin-top:24rpx;color:#C0392B" bindtap="clearAll">清空本机数据</button>
+
+  <view class="disclaimer">
+    原书内容采用 CC BY-NC-SA 4.0 许可，本工程为学习演示用的派生实现。
+    时限规则仅供提示，正式使用前须逐条核对法条与当地规定；本工具不替代专业医疗、法律与急救建议。
+  </view>
+</view>

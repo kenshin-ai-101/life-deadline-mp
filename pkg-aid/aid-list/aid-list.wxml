@@ -1,0 +1,24 @@
+<view class="aid-page">
+  <view class="aid-hero">
+    <text class="aid-hero-kicker">先做什么 · 一屏三步</text>
+    <text class="aid-hero-title">处境急救卡</text>
+    <text class="aid-hero-desc">13 个处境 · 文字逐字摘自原书 · 断网也能看</text>
+    <view class="aid-call120" bindtap="call120">直接拨 120</view>
+  </view>
+
+  <view class="aid-notice">
+    第一步永远是决定生死或止损的那一句。页面只写动作，不写原理；本页不替代专业急救培训，现场优先听从 120 调度员指导。
+  </view>
+
+  <view class="aid-grid">
+    <view class="aid-cell" wx:for="{{cards}}" wx:key="key" data-key="{{item.key}}" bindtap="goDetail">
+      <text class="aid-cell-no">{{item.no}}</text>
+      <text class="aid-cell-name">{{item.name}}</text>
+      <text class="aid-cell-sub">{{item.primaryPhone}} · {{item.stepCount}} 步</text>
+    </view>
+  </view>
+
+  <view class="aid-foot">
+    整包内容已预置在本机，无网络可用。原文未改写、未润色，剂量与姿势描述保持原样；出处见每张卡底部。
+  </view>
+</view>

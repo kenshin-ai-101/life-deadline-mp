@@ -1,0 +1,87 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/event-create/event-create",
+    "pages/timeline/timeline",
+    "pages/todo/todo",
+    "pages/search/search",
+    "pages/family/family",
+    "pages/catalog/catalog",
+    "pages/book-detail/book-detail",
+    "pages/topic-aggregate/topic-aggregate",
+    "pages/mine/mine"
+  ],
+  "subpackages": [
+    {
+      "root": "pkg-read",
+      "pages": ["detail/detail", "filter/filter", "chapter/chapter"]
+    },
+    {
+      "root": "pkg-family",
+      "pages": ["member-detail/member-detail", "elder/elder"]
+    },
+    {
+      "root": "pkg-aid",
+      "pages": ["aid-list/aid-list", "aid-detail/aid-detail"]
+    },
+    {
+      "root": "pkg-tool",
+      "pages": ["calc/calc"]
+    }
+  ],
+  "preloadRule": {
+    "pages/index/index": { "network": "all", "packages": ["pkg-aid"] },
+    "pages/catalog/catalog": { "network": "all", "packages": ["pkg-read"] },
+    "pages/search/search": { "network": "all", "packages": ["pkg-read"] },
+    "pages/family/family": { "network": "all", "packages": ["pkg-family"] }
+  },
+  "window": {
+    "navigationBarTitleText": "人生时限",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F4F6F9",
+    "backgroundTextStyle": "light",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "color": "#8A94A6",
+    "selectedColor": "#1F3A5F",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab-home.png",
+        "selectedIconPath": "images/tab-home-on.png"
+      },
+      {
+        "pagePath": "pages/todo/todo",
+        "text": "清单",
+        "iconPath": "images/tab-todo.png",
+        "selectedIconPath": "images/tab-todo-on.png"
+      },
+      {
+        "pagePath": "pages/family/family",
+        "text": "家庭",
+        "iconPath": "images/tab-family.png",
+        "selectedIconPath": "images/tab-family-on.png"
+      },
+      {
+        "pagePath": "pages/catalog/catalog",
+        "text": "知识库",
+        "iconPath": "images/tab-book.png",
+        "selectedIconPath": "images/tab-book-on.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "images/tab-mine.png",
+        "selectedIconPath": "images/tab-mine-on.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

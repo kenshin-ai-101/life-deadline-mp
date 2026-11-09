@@ -1,0 +1,63 @@
+<view class="page">
+  <view wx:if="{{viewState === 'error'}}" class="card">
+    <text class="t-body">模板加载失败。</text>
+  </view>
+
+  <block wx:else>
+    <view class="card-dark" wx:if="{{selected}}">
+      <text class="t-mono">EVENT TEMPLATE · {{selected.key}}</text>
+      <view class="row" style="margin-top:16rpx">
+        <view class="badge-box">{{selected.badge}}</view>
+        <view class="grow">
+          <text class="t-lg t-white">{{selected.name}}</text>
+          <text class="t-small" style="color:rgba(255,255,255,.75);display:block;margin-top:6rpx">{{selected.desc}}</text>
+        </view>
+      </view>
+      <view class="hairline" style="background:rgba(255,255,255,.2)"></view>
+      <text class="t-small" style="color:rgba(255,255,255,.8)">{{selected.sectionsText}} · {{selected.previewText}}</text>
+    </view>
+
+    <view class="section-head"><text class="section-title">只填三样</text><text class="section-label">约 10 秒</text></view>
+
+    <view class="form-card">
+      <view class="field">
+        <text class="field-label">1 · 事件类型</text>
+        <picker mode="selector" range="{{eventNames}}" value="{{selectedIndex}}" bindchange="onEventChange">
+          <view class="row-between">
+            <text class="picker-value">{{eventNames[selectedIndex]}}</text>
+            <text class="chev">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="field-label">2 · {{selected.anchorLabel}}（可回填过去 3 年）</text>
+        <picker mode="date" value="{{anchorDate}}" start="{{dateStart}}" end="{{dateEnd}}" bindchange="onDateChange">
+          <view class="row-between">
+            <text class="picker-value">{{anchorDate}}</text>
+            <text class="chev">›</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="field" style="border-bottom:none">
+        <text class="field-label">3 · 备注（可选，只存在本机）</text>
+        <input class="field-input" placeholder="给自己留一句话" value="{{note}}" bindinput="onNote" maxlength="60" />
+      </view>
+    </view>
+
+    <view wx:if="{{warning}}" class="notice {{warningType === 'blue' ? 'notice-blue' : ''}}" style="margin-top:24rpx">{{warning}}</view>
+
+    <view class="notice notice-blue">
+      只有经过核实的 10 条法定时限会生成倒计时；其余是原书建议，不编造天数，你可以自己设提醒。
+      地方差异大的条目只给官方入口，不显示具体天数。
+    </view>
+
+    <button class="btn btn-primary" style="margin-top:12rpx" bindtap="submit">生成时间轴</button>
+
+    <view class="disclaimer">
+      时限依据与最后核实日期见每条动作详情。各地执行口径可能不同，请以当地部门答复为准。
+      本工具不替代专业法律意见。
+    </view>
+  </block>
+</view>

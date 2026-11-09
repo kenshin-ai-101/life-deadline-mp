@@ -1,0 +1,41 @@
+<view class="aid-detail-page" wx:if="{{card}}">
+  <view class="aid-detail-head">
+    <text class="aid-detail-kicker">先做什么</text>
+    <text class="aid-detail-title">{{card.name}}</text>
+  </view>
+
+  <view class="aid-calls">
+    <view class="aid-call-btn" wx:for="{{card.phones}}" wx:key="*this" data-no="{{item}}" bindtap="call">
+      <text class="aid-call-num">{{item}}</text>
+      <text class="aid-call-tip">一键拨号</text>
+    </view>
+  </view>
+
+  <view class="aid-step-list">
+    <view class="aid-step {{item.lead ? 'lead' : ''}}" wx:for="{{steps}}" wx:key="no">
+      <text class="aid-step-no">{{item.no}}</text>
+      <view class="grow">
+        <text class="aid-step-text">{{item.text}}</text>
+        <text class="aid-step-cite">原文 {{item.cite}} · 未改写</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="aid-cite-block">
+    <text class="t-title">出处</text>
+    <view wx:for="{{cites}}" wx:key="id" class="aid-cite-row" data-id="{{item.id}}" bindtap="goItem">
+      <text class="t-small">{{item.id}} · {{item.title}}</text>
+      <text class="chev">›</text>
+    </view>
+  </view>
+
+  <view class="aid-disclaimer">{{card.disclaimer}}</view>
+
+  <view class="row" style="margin-top:24rpx">
+    <button class="btn btn-outline btn-sm" style="flex:1" bindtap="copyShare">复制全文发给家人</button>
+  </view>
+
+  <view class="aid-foot" style="margin-top:24rpx">
+    内容整包预置在本机，无网络可用。不改写原文，不调整剂量与姿势描述。本页不替代专业急救培训。
+  </view>
+</view>

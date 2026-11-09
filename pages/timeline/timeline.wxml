@@ -1,0 +1,108 @@
+<view class="page">
+  <view wx:if="{{viewState === 'loading'}}" class="card"><text class="t-small">正在生成时间轴…</text></view>
+  <view wx:elif="{{viewState === 'error'}}" class="card">
+    <text class="t-body">没有找到这个事件，可能已被删除。</text>
+  </view>
+
+  <block wx:elif="{{viewState === 'ready'}}">
+    <view class="event-head">
+      <view class="row-between">
+        <text class="t-lg">{{event.name}}</text>
+        <text class="tag tag-plain">{{doneCount}} / {{total}} 已办完</text>
+      </view>
+      <text class="t-small">{{event.anchorLabel}} · {{event.anchorDate}}</text>
+      <text class="t-small" wx:if="{{event.note}}">备注：{{event.note}}</text>
+    </view>
+
+    <view class="notice notice-blue">
+      倒计时只给已核实的法定时限。带「计时起点待确认」的动作，从另一件事发生那天起算，补填后才会显示日期。
+    </view>
+
+    <view wx:for="{{groups}}" wx:for-item="group" wx:key="key" class="group">
+      <view class="section-head">
+        <text class="section-title">{{group.label}}</text>
+        <text class="section-label">{{group.tasks.length}} 条{{group.hint ? ' · ' + group.hint : ''}}</text>
+      </view>
+
+      <view wx:for="{{group.tasks}}" wx:key="id" class="task-card {{item.done ? 'task-done' : ''}} {{group.key === 'overdue' ? 'task-overdue' : ''}}">
+        <view class="row-top">
+          <view class="check {{item.done ? 'checked' : ''}}" data-id="{{item.id}}" catchtap="toggleDone">{{item.done ? '✓' : ''}}</view>
+          <view class="grow" style="margin-left:20rpx">
+            <view class="row-top" style="flex-wrap:wrap">
+              <text class="t-title {{item.done ? 't-strike' : ''}}">{{item.title}}</text>
+            </view>
+            <view class="tag-line">
+              <text class="tag {{item.kind === 'deadline' ? 'tag-outline' : 'tag-plain'}}">{{item.kindText}}</text>
+              <text class="tag {{item.varianceClass}}" wx:if="{{item.varianceText}}">{{item.varianceText}}</text>
+              <text class="tag tag-danger" wx:if="{{item.workdayApprox}}">工作日估算</text>
+              <text class="tag tag-danger" wx:if="{{item.dayText === '各地不同'}}">不显示天数</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="task-meta">
+          <view class="row-between" wx:if="{{item.showDays}}">
+            <text class="task-date">{{item.dateText}}</text>
+            <text class="task-rel {{item.isOverdue ? 't-danger' : ''}}">{{item.dayText}}</text>
+          </view>
+          <view wx:else>
+            <text class="task-rel">{{item.dayText || item.dateText}}</text>
+          </view>
+          <text class="t-mute">{{item.deadlineNote}}</text>
+          <view class="row" style="flex-wrap:wrap;margin-top:8rpx" wx:if="{{item.obligorText || item.materialsText}}">
+            <text class="tag tag-plain" wx:if="{{item.obligorText}}">{{item.obligorText}}</text>
+            <text class="tag tag-plain" wx:if="{{item.materialsText}}">{{item.materialsText}}</text>
+            <text class="tag tag-ok" wx:if="{{item.remindText}}">{{item.remindText}}</text>
+            <text class="tag tag-ok" wx:if="{{item.receiptCount > 0}}">{{item.receiptCount}} 份回执</text>
+          </view>
+        </view>
+
+        <view class="cite-row" wx:if="{{item.basis}}">
+          <text class="t-mute">依据：{{item.basis}}</text>
+          <text class="t-mute" wx:if="{{item.cite}}"> · 回链 {{item.cite}}</text>
+        </view>
+
+        <view class="task-actions">
+          <text class="action-link" data-id="{{item.id}}" bindtap="openRemind">提醒我</text>
+          <text class="action-link" wx:if="{{item.needsAnchor}}" data-id="{{item.id}}" bindtap="openAnchor">补填起点</text>
+          <text class="action-link" data-id="{{item.id}}" bindtap="uploadReceipt">存回执</text>
+          <text class="action-link" wx:if="{{item.cite}}" data-cite="{{item.cite}}" bindtap="goItem">看条目</text>
+        </view>
+
+        <view wx:if="{{item.official}}" class="official-row" data-text="{{item.official}}" bindtap="copyOfficial">
+          <text class="t-small">官方入口：{{item.official}}（点此复制）</text>
+        </view>
+
+        <view wx:if="{{item.materialCount > 0}}" class="material-row">
+          <text class="t-mute">材料：{{item.firstMaterial}}</text>
+          <text class="t-mute" wx:if="{{item.materialCount > 1}}"> 等 {{item.materialCount}} 项</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="hairline"></view>
+    <view class="row" style="flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" style="margin:0 12rpx 16rpx 0" bindtap="shareSummary">复制摘要给家人</button>
+      <button class="btn btn-ghost btn-sm" style="margin:0 12rpx 16rpx 0" bindtap="archiveEvent">归档</button>
+      <button class="btn btn-ghost btn-sm" wx:if="{{canDelete}}" style="color:#C0392B" bindtap="deleteEvent">删除</button>
+    </view>
+
+    <view class="disclaimer">
+      规则更新不会自动改期已生成的待办。地方差异等级为「完全由各地规定」的条目不显示天数，只给官方入口。
+      工作日估算只跳过周末，未扣除法定节假日。依据最后核实日期见 PRD 附录 A。
+    </view>
+  </block>
+
+  <!-- 补填计时起点 / 自定义提醒日 -->
+  <view wx:if="{{showAnchorPicker}}" class="mask" bindtap="closeAnchor">
+    <view class="sheet" catchtap="noop">
+      <text class="t-title">{{anchorPickerMode === 'custom' ? '自己设一个提醒日' : '补填计时起点'}}</text>
+      <text class="t-small" style="margin-top:12rpx">这个日期只用来起算这一条，不会改动事件锚点日。不采集任何身份信息。</text>
+      <picker mode="date" value="{{anchorDate}}" start="{{dateStart}}" end="{{dateEnd}}" bindchange="onAnchorDateChange">
+        <view class="sheet-picker">{{anchorDate}} ›</view>
+      </picker>
+      <button class="btn btn-primary" style="margin-top:20rpx" bindtap="confirmAnchor">确定</button>
+      <button class="btn btn-ghost" style="margin-top:12rpx" bindtap="closeAnchor">取消</button>
+    </view>
+  </view>
+</view>

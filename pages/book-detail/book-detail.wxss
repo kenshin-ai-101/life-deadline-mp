@@ -1,0 +1,125 @@
+/* 书籍详情 · 与知识库 tab 同一套暖瓷白视觉 */
+page { background: #F6F5F0; }
+.bd-page { padding: 24rpx 36rpx 56rpx; box-sizing: border-box; }
+
+.hero-card {
+  display: flex;
+  gap: 28rpx;
+  padding: 32rpx;
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+}
+.hero-cover {
+  width: 164rpx;
+  height: 226rpx;
+  border-radius: 4rpx 8rpx 8rpx 4rpx;
+  flex: none;
+  border: 1rpx solid #E5E7E0;
+  box-shadow: 4rpx 8rpx 16rpx rgba(37, 59, 47, .09);
+}
+.hero-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hero-title { font-size: 31rpx; font-weight: 650; color: #242E2B; }
+.hero-desc { margin-top: 10rpx; display: flex; flex-direction: column; }
+.hero-desc-line { font-size: 23rpx; color: #69736D; line-height: 1.85; }
+.hero-badges { display: flex; gap: 12rpx; flex-wrap: wrap; margin-top: 20rpx; }
+.cbadge {
+  font-size: 22rpx;
+  font-weight: 700;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid currentColor;
+}
+
+.continue-card {
+  margin-top: 20rpx;
+  padding: 28rpx 32rpx;
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+  color: #226B60;
+  font-size: 27rpx;
+  font-weight: 600;
+}
+.row-hover { opacity: .8; }
+
+.bmeta { display: flex; gap: 16rpx; margin-top: 24rpx; }
+.bmeta .m {
+  flex: 1;
+  min-width: 0;
+  padding: 24rpx 12rpx;
+  text-align: center;
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+}
+.bmeta .v { font-size: 36rpx; font-weight: 650; color: #226B60; line-height: 1.4; }
+.bmeta .v.o { color: #956947; }
+.bmeta .k { font-size: 21rpx; color: #727B75; margin-top: 6rpx; }
+
+.chips { white-space: nowrap; margin: 28rpx 0 20rpx; width: 100%; }
+.chip {
+  display: inline-block;
+  font-size: 23rpx;
+  padding: 10rpx 22rpx;
+  margin-right: 14rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid #E5E7E0;
+  background: #FFFDF9;
+  color: #69736D;
+}
+.chip.on { background: #E5EEE7; border-color: #226B60; color: #226B60; font-weight: 700; }
+.chip-cnt { font-size: 20rpx; margin-left: 10rpx; opacity: .7; }
+
+.chapters {
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+  padding: 8rpx 28rpx;
+}
+.chrow {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 92rpx;
+  border-bottom: 1rpx solid #E5E7E0;
+}
+.chrow:last-child { border-bottom: none; }
+.grow { flex: 1; min-width: 0; }
+.ch-no { width: 48rpx; flex: none; font-size: 23rpx; color: #727B75; }
+.ch-title { font-size: 26rpx; color: #242E2B; }
+.ch-reading {
+  flex: none;
+  font-size: 20rpx;
+  color: #226B60;
+  background: #E5EEE7;
+  padding: 4rpx 12rpx;
+  border-radius: 10rpx;
+}
+.ch-count { flex: none; font-size: 22rpx; color: #727B75; }
+.chrow-all { justify-content: center; color: #226B60; font-size: 24rpx; font-weight: 600; }
+
+.source-card {
+  margin-top: 24rpx;
+  padding: 28rpx 32rpx;
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+  font-size: 23rpx;
+  color: #69736D;
+  line-height: 2;
+}
+.source-link { color: #226B60; margin-top: 8rpx; }
+.lib-note { font-size: 22rpx; color: #727B75; text-align: center; margin-top: 24rpx; line-height: 1.8; }
+
+.empty-card { padding: 90rpx 40rpx; text-align: center; color: #69736D; font-size: 27rpx; }
+.back-btn {
+  margin: 32rpx auto 0;
+  width: 320rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-radius: 20rpx;
+  background: #226B60;
+  color: #FFFFFF;
+  font-size: 27rpx;
+}

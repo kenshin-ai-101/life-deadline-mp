@@ -1,0 +1,10 @@
+/* 条目详情 · 「怎么说」话术块（人情世故指南特有） */
+.tip-block {
+  background: #EDF3FB;
+  border-left: 6rpx solid #E8A33D;
+  border-radius: 12rpx;
+  padding: 24rpx 28rpx;
+  margin: 0 0 24rpx;
+}
+.tip-block .plain-kicker { color: #A66A12; margin-bottom: 10rpx; }
+.tip-block .plain-text { color: #1F2A37; font-size: 28rpx; line-height: 1.8; }

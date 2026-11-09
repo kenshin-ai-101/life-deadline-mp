@@ -1,0 +1,56 @@
+<view class="lib-page">
+  <!-- 自定义大标题导航：左侧书名式大标题，右侧圆形搜索（避开系统胶囊） -->
+  <view class="lib-status" style="height:{{statusBarHeight}}px"></view>
+  <view class="lib-nav">
+    <view class="lib-nav-title">知识库</view>
+    <view class="lib-nav-right">
+      <view class="lib-search" bindtap="goSearch" hover-class="lib-search-hover" aria-label="搜索">
+        <image class="lib-search-ico" src="/images/icon-search.png" mode="aspectFit" />
+      </view>
+    </view>
+  </view>
+
+  <view class="lib-tabs">
+    <view class="lib-tab {{tab === 'shelf' ? 'on' : ''}}" data-tab="shelf" bindtap="onTab">书架</view>
+    <view class="lib-tab {{tab === 'topic' ? 'on' : ''}}" data-tab="topic" bindtap="onTab">主题</view>
+  </view>
+
+  <view class="lib-body">
+    <!-- 书架：书籍大卡 -->
+    <block wx:if="{{tab === 'shelf'}}">
+      <view class="book-card" wx:for="{{books}}" wx:key="id"
+            data-id="{{item.id}}" bindtap="onBookTap" hover-class="book-card-hover">
+        <image class="book-cover" src="{{item.cover}}" mode="aspectFill" />
+        <view class="book-info">
+          <view class="book-title">{{item.title}}</view>
+          <view class="book-desc">
+            <text class="book-desc-line">{{item.descLine1}}</text>
+            <text class="book-desc-line">{{item.descLine2}}</text>
+          </view>
+          <view wx:if="{{item.readingSec}}" class="book-continue"
+                data-id="{{item.id}}" data-sec="{{item.readingSec}}" catchtap="onContinue">继续阅读 ›</view>
+          <view class="book-badges">
+            <text class="book-badge" wx:for="{{item.badges}}" wx:for-item="b" wx:key="*this"
+                  style="border-color:{{item.accent}};color:{{item.accent}};">{{b}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="lib-note">指南正文按各自许可署名转载 · 来源见书籍详情</view>
+    </block>
+
+    <!-- 主题：8 宫格 -->
+    <block wx:if="{{tab === 'topic'}}">
+      <view class="lib-note lib-note-head">按生活主题整理两本指南，找到适合当下的做法。</view>
+      <view class="topic-grid">
+        <view class="topic-cell" wx:for="{{topics}}" wx:key="id"
+              data-id="{{item.id}}" bindtap="onTopicTap" hover-class="topic-cell-hover">
+          <view class="topic-cell-top">
+            <image class="topic-ico" src="{{item.icon}}" mode="aspectFit" />
+            <text>{{item.short}}</text>
+          </view>
+          <view class="topic-cell-count">{{item.count}} 章</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

@@ -1,0 +1,133 @@
+/* 知识库 tab：复刻《人生指南库》书库的暖瓷白 + 松石绿视觉 */
+page { background: #F6F5F0; }
+
+.lib-page { min-height: 100vh; background: #F6F5F0; box-sizing: border-box; }
+.lib-status { width: 100%; }
+
+/* 自定义导航：大标题 + 圆形搜索按钮，右侧为系统胶囊留位 */
+.lib-nav {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+}
+.lib-nav-title {
+  font-size: 48rpx;
+  font-weight: 650;
+  letter-spacing: -1.2rpx;
+  color: #242E2B;
+}
+.lib-nav-right { display: flex; align-items: center; margin-right: 190rpx; }
+.lib-search {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  border: 1rpx solid #E5E7E0;
+  background: #FFFDF9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lib-search-hover { opacity: .7; }
+.lib-search-ico { width: 34rpx; height: 34rpx; }
+
+/* 书架 / 主题 双 tab */
+.lib-tabs { display: flex; gap: 44rpx; padding: 4rpx 32rpx 0; }
+.lib-tab {
+  font-size: 29rpx;
+  font-weight: 600;
+  color: #727B75;
+  padding: 20rpx 4rpx;
+  position: relative;
+}
+.lib-tab.on { color: #242E2B; }
+.lib-tab.on::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8rpx;
+  height: 6rpx;
+  border-radius: 4rpx;
+  background: #226B60;
+}
+
+.lib-body { padding: 16rpx 36rpx 56rpx; box-sizing: border-box; }
+
+/* 书籍大卡 */
+.book-card {
+  display: flex;
+  gap: 28rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+}
+.book-card-hover { opacity: .85; }
+.book-cover {
+  width: 164rpx;
+  height: 226rpx;
+  border-radius: 4rpx 8rpx 8rpx 4rpx;
+  flex: none;
+  border: 1rpx solid #E5E7E0;
+  box-shadow: 4rpx 8rpx 16rpx rgba(37, 59, 47, .09);
+}
+.book-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.book-title { font-size: 31rpx; font-weight: 650; color: #242E2B; }
+.book-desc { margin-top: 10rpx; display: flex; flex-direction: column; }
+.book-desc-line { font-size: 23rpx; color: #69736D; line-height: 1.85; }
+.book-continue {
+  color: #226B60;
+  font-size: 24rpx;
+  min-height: 88rpx;
+  display: flex;
+  align-items: center;
+}
+.book-badges { display: flex; gap: 12rpx; flex-wrap: wrap; margin-top: 20rpx; }
+.book-badge {
+  font-size: 22rpx;
+  font-weight: 700;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid currentColor;
+}
+
+.lib-note {
+  font-size: 22rpx;
+  color: #727B75;
+  line-height: 1.8;
+  margin-top: 20rpx;
+  text-align: center;
+}
+.lib-note-head { text-align: left; margin: 8rpx 0 24rpx; }
+
+/* 主题宫格：纯百分比宽度，避免 iOS 真机子像素取整换行 */
+.topic-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.topic-cell {
+  width: 48.6%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+}
+.topic-cell-hover { opacity: .85; }
+.topic-cell-top {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  font-size: 27rpx;
+  font-weight: 700;
+  color: #242E2B;
+}
+.topic-ico { width: 30rpx; height: 30rpx; flex: none; }
+.topic-cell-count { font-size: 22rpx; color: #727B75; margin-top: 8rpx; }

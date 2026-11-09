@@ -1,0 +1,33 @@
+<view class="elder-page">
+  <view class="elder-head">
+    <text class="elder-title">{{ownerName}}的清单</text>
+    <text class="elder-sub">字大 · 只看该做什么 · 不用登录</text>
+  </view>
+
+  <view wx:if="{{viewState === 'fallback'}}" class="elder-card">
+    <text class="elder-plain">{{fallbackText}}</text>
+  </view>
+
+  <block wx:elif="{{viewState === 'ready'}}">
+    <view class="elder-card" wx:for="{{cards}}" wx:key="id">
+      <text class="elder-no">{{item.section}} · {{item.id}}</text>
+      <text class="elder-item-title">{{item.title}}</text>
+      <text class="elder-plain">{{item.plain}}</text>
+    </view>
+  </block>
+
+  <view class="elder-calls">
+    <text class="elder-call-title">要打电话，点一下就行</text>
+    <view class="elder-call-grid">
+      <view class="elder-call" wx:for="{{hotlines}}" wx:key="no" data-no="{{item.no}}" bindtap="call">
+        <text class="elder-call-no">{{item.no}}</text>
+        <text class="elder-call-label">{{item.label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="elder-foot">
+    <text class="elder-foot-text">内容摘自《高性价比人生指南》，不替代医生和专业急救培训。</text>
+    <text class="elder-copy" bindtap="copyText">复制全文</text>
+  </view>
+</view>

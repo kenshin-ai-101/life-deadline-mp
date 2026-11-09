@@ -1,0 +1,85 @@
+<view class="page">
+
+  <view class="masthead">
+    <view class="row-between">
+      <text class="brand">{{brand}}</text>
+      <text class="t-mono">DATA {{meta.items}} · {{meta.commit}}</text>
+    </view>
+    <text class="tagline">{{tagline}}</text>
+  </view>
+
+  <view wx:if="{{viewState === 'loading'}}" class="card">
+    <text class="t-small">正在读取本地内容…</text>
+  </view>
+  <view wx:elif="{{viewState === 'error'}}" class="card">
+    <text class="t-body">本地数据读取失败，请重试。</text>
+    <button class="btn btn-outline btn-sm" style="margin-top:20rpx" bindtap="handleRetry">重新加载</button>
+  </view>
+
+  <block wx:elif="{{viewState === 'ready'}}">
+
+    <view wx:if="{{contentUpdated}}" class="notice notice-blue" bindtap="dismissUpdate">
+      内容已更新到上游 {{meta.commit}}（{{meta.items}} 条）。点此确认，收藏与事件保持原样。
+    </view>
+
+    <view wx:if="{{notifyHint}}" class="notice" bindtap="goTodo">{{notifyHint}} ›</view>
+
+    <!-- 红色入口：PRD 要求任何情况下不隐藏，视觉权重最高 -->
+    <view class="aid-entry" bindtap="goAid">
+      <view class="grow">
+        <text class="aid-kicker">出事了 / 现在就要做</text>
+        <text class="aid-title">处境急救卡</text>
+        <text class="aid-desc">13 个处境 · 一屏三步 · 断网可用</text>
+      </view>
+      <view class="aid-arrow">›</view>
+    </view>
+
+    <view class="section-head">
+      <text class="section-title">我今天遇到了什么事</text>
+      <text class="section-label">13 个事件</text>
+    </view>
+    <view class="event-grid">
+      <view class="event-cell" wx:for="{{eventGrid}}" wx:key="key" data-key="{{item.key}}" bindtap="goCreate">
+        <view class="event-badge">{{item.badge}}</view>
+        <text class="event-name">{{item.name}}</text>
+        <text class="event-count">{{item.countText}}</text>
+      </view>
+    </view>
+
+    <view class="section-head">
+      <text class="section-title">我的时间轴</text>
+      <text class="section-more" bindtap="goTodo">全部清单 ›</text>
+    </view>
+    <view wx:if="{{dash.activeEvents.length === 0}}" class="card empty-inline">
+      <text class="t-small">还没有进行中的事件。选一个上面的处境，填一个日期就能生成时间轴。</text>
+    </view>
+    <view wx:for="{{dash.activeEvents}}" wx:key="id" class="card timeline-card"
+          data-id="{{item.id}}" bindtap="goTimeline">
+      <view class="row-between">
+        <text class="t-title">{{item.name}}</text>
+        <text class="tag tag-plain">{{item.progressText}}</text>
+      </view>
+      <text class="t-small">{{item.anchorLabel}} · {{item.anchorDate}}</text>
+    </view>
+
+    <view class="section-head">
+      <text class="section-title">每日一条</text>
+      <text class="section-label">{{dailySection}}</text>
+    </view>
+    <view class="card" bindtap="goDaily" wx:if="{{daily}}">
+      <text class="t-mono">NO. {{daily.id}}</text>
+      <text class="t-title" style="margin-top:10rpx">{{daily.t}}</text>
+      <text class="t-body" style="margin-top:14rpx">{{daily.p}}</text>
+      <view class="hairline"></view>
+      <view class="row-between">
+        <text class="tag">{{daily.grade}} 级</text>
+        <text class="section-more">看完整条目 ›</text>
+      </view>
+    </view>
+
+    <view class="disclaimer">
+      内容来自《高性价比人生指南》（CC BY-NC-SA 4.0），数据截至 {{meta.builtAt}}。
+      时限规则仅收录已核实条目，地方差异以当地部门口径为准；本工具不替代专业医疗、法律与急救建议。
+    </view>
+  </block>
+</view>

@@ -1,0 +1,62 @@
+<view class="page">
+  <view class="search-bar">
+    <input class="search-input" placeholder="搜标题、说人话" value="{{keyword}}"
+           confirm-type="search" bindinput="onInput" bindconfirm="onConfirm" />
+    <text class="search-clear" wx:if="{{keyword}}" bindtap="clear">×</text>
+  </view>
+
+  <view class="book-filter">
+    <text class="bf-chip {{activeBook === item.id ? 'on' : ''}}" wx:for="{{bookFilters}}" wx:key="id"
+          data-id="{{item.id}}" bindtap="onBookFilter">{{item.label}}</text>
+  </view>
+
+  <block wx:if="{{!searched}}">
+    <view class="section-head"><text class="section-title">最近搜过</text>
+      <text class="section-more" wx:if="{{history.length > 0}}" bindtap="clearHistory">清空</text>
+    </view>
+    <view wx:if="{{history.length === 0}}" class="t-mute" style="padding:0 4rpx 16rpx">还没有搜索记录</view>
+    <view class="chip-row">
+      <text class="chip" wx:for="{{history}}" wx:key="*this" data-word="{{item}}" bindtap="tapHistory">{{item}}</text>
+    </view>
+
+    <view class="section-head"><text class="section-title">大家在找</text><text class="section-label">WEEKLY</text></view>
+    <view class="chip-row">
+      <text class="chip chip-hot" wx:for="{{hot}}" wx:key="*this" data-word="{{item}}" bindtap="tapHot">{{item}}</text>
+    </view>
+
+    <view class="card" style="margin-top:40rpx">
+      <text class="t-title">换个方式找</text>
+      <view class="row" style="flex-wrap:wrap;margin-top:20rpx">
+        <text class="chip" bindtap="goFilter">按成本 / 人群 / 争议筛</text>
+        <text class="chip" bindtap="goAid">急救卡</text>
+        <text class="chip" bindtap="goHome">按处境找</text>
+      </view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="row-between" style="padding:24rpx 4rpx 8rpx">
+      <text class="t-small">找到 {{results.length}} 条{{results.length >= 60 ? '（只显示前 60 条）' : ''}}</text>
+      <text class="section-more" bindtap="clear">清空搜索</text>
+    </view>
+
+    <view wx:if="{{results.length === 0}}" class="card">
+      <text class="t-title">书里没找到这一条</text>
+      <text class="t-small" style="display:block;margin-top:12rpx">可以试试按处境、按人群，或者直接看急救卡。</text>
+      <view class="row" style="flex-wrap:wrap;margin-top:20rpx">
+        <text class="chip" bindtap="goHome">按处境找</text>
+        <text class="chip" bindtap="goFilter">按人群找</text>
+        <text class="chip chip-hot" bindtap="goAid">急救卡</text>
+      </view>
+    </view>
+
+    <view class="result-card" wx:for="{{results}}" wx:key="id" data-id="{{item.id}}" bindtap="goItem">
+      <text class="t-mono">{{item.bookTitle}} · NO. {{item.id}} · {{item.section}} · {{item.grade}}</text>
+      <rich-text class="result-title" nodes="{{item.titleHtml}}"></rich-text>
+      <rich-text class="result-plain" nodes="{{item.plainHtml}}"></rich-text>
+      <view class="tag-line" wx:if="{{item.disputed}}"><text class="tag tag-warn">有争议 · 正反并列</text></view>
+    </view>
+
+    <view class="disclaimer">排序：标题命中优先于说人话命中，同权重按证据等级。静态版暂不支持拼音检索。</view>
+  </block>
+</view>

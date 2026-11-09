@@ -1,0 +1,49 @@
+<view class="page">
+  <view class="notice notice-blue">
+    四组口径（死亡率 / 金钱 / 时间 / 自由）分组展示，不互相折算，也不放在一起排序。
+  </view>
+
+  <view class="card">
+    <view class="row-between">
+      <text class="t-title">只看争议</text>
+      <switch checked="{{disputedOnly}}" bindchange="toggleDisputed" color="#1F3A5F" />
+    </view>
+    <text class="t-small">展示正反证据并存的条目；进入详情会成对呈现正反两方。</text>
+  </view>
+
+  <view wx:for="{{facets}}" wx:for-item="facet" wx:key="key" class="card">
+    <text class="t-title">{{facet.label}}</text>
+    <view class="chip-row" style="margin-top:16rpx">
+      <text class="chip {{v.selected ? 'chip-on' : ''}}"
+            wx:for="{{facet.values}}" wx:for-item="v" wx:key="value"
+            data-key="{{facet.key}}" data-value="{{v.value}}" bindtap="choose">{{v.label}}</text>
+    </view>
+  </view>
+
+  <button class="btn btn-ghost btn-sm" bindtap="reset">清空所有筛选</button>
+
+  <view class="section-head">
+    <text class="section-title">筛选结果</text>
+    <text class="section-label">{{total}} 条</text>
+  </view>
+
+  <view wx:if="{{total === 0}}" class="empty">
+    <view class="empty-icon">○</view>
+    <text class="t-small">这个组合下没有条目，放宽一两个条件试试</text>
+  </view>
+
+  <block wx:for="{{groups}}" wx:for-item="g" wx:key="lens">
+    <view class="lens-head">
+      <text class="lens-name">{{g.lens}}</text>
+      <text class="t-mute">{{g.count}} 条 · 只显示前 30 条</text>
+    </view>
+    <view class="result-card" wx:for="{{g.items}}" wx:key="id" data-id="{{item.id}}" bindtap="goItem">
+      <text class="t-mono">{{item.id}} · {{item.grade}} · {{item.ev}}</text>
+      <text class="result-title">{{item.title}}</text>
+      <text class="result-plain">{{item.plain}}</text>
+      <text class="tag tag-warn" wx:if="{{item.disputed}}">有争议</text>
+    </view>
+  </block>
+
+  <view class="disclaimer">人群标签来自上游条目的成本标签；静态版没有账号体系，不会自动按家庭成员预选。</view>
+</view>

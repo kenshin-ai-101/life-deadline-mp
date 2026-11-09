@@ -1,0 +1,38 @@
+<view class="ta-page">
+  <!-- 主题头卡 -->
+  <view class="topic-head">
+    <view class="topic-head-ico"><image src="{{topic.icon}}" mode="aspectFit" /></view>
+    <view class="topic-head-txt">
+      <view class="topic-head-name">{{topic.short}}</view>
+      <view class="topic-head-meta">{{bookCount}} 本书 · {{totalSteps}} 条建议 · {{chapters.length}} 章</view>
+    </view>
+    <view class="topic-fav {{topicFav ? 'on' : ''}}" bindtap="onFavTopic" hover-class="row-hover">
+      <text>{{topicFav ? '★' : '☆'}}</text>
+    </view>
+  </view>
+
+  <!-- 按书筛选 -->
+  <scroll-view scroll-x class="chips" enhanced show-scrollbar="{{false}}">
+    <view class="chip {{filter === item.id ? 'on' : ''}}" wx:for="{{bookChips}}" wx:key="id"
+          data-id="{{item.id}}" bindtap="onFilter">{{item.label}} {{item.count}}</view>
+  </scroll-view>
+
+  <!-- 跨书章节小卡 -->
+  <view class="minor" wx:for="{{shown}}" wx:key="uid"
+        data-book="{{item.bookId}}" data-sec="{{item.chapterId}}" bindtap="onChapterTap" hover-class="row-hover">
+    <view class="mdot" style="background:{{item.accent}}"></view>
+    <view class="mmain">
+      <view class="mt">{{item.title}}</view>
+      <view class="mm">{{item.bookTitle}} · {{item.count}} 条 · 更新 {{item.updatedLabel}}</view>
+    </view>
+    <image class="chev" src="/images/icon-chev.png" mode="aspectFit" />
+  </view>
+
+  <view wx:if="{{!chapters.length}}" class="ta-empty">
+    这个方向还没有收录章节，去知识库看看别的
+    <view class="back-btn" bindtap="onOpenLibrary">返回知识库</view>
+  </view>
+  <view wx:elif="{{shown.length < chapters.length}}" class="ta-more" bindtap="loadMore" hover-class="row-hover">
+    已显示 {{shown.length}} / {{chapters.length}} 章 · 点击加载更多
+  </view>
+</view>

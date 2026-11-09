@@ -1,0 +1,125 @@
+<view class="page">
+  <view wx:if="{{viewState === 'loading'}}" class="card"><text class="t-small">正在载入条目…</text></view>
+
+  <view wx:elif="{{viewState === 'missing'}}" class="card">
+    <text class="t-title">该书条目已下线</text>
+    <text class="t-small" style="display:block;margin-top:12rpx">上游删除了这一条。你本地的收藏快照仍然保留，不会静默消失。</text>
+  </view>
+
+  <block wx:elif="{{viewState === 'ready'}}">
+    <text class="t-mono">{{bookTitle}} · {{section}} · NO. {{item.id}}</text>
+    <text class="detail-title">{{item.t}}</text>
+
+    <!-- 成本标签徽章 -->
+    <view class="tag-line">
+      <text class="tag" wx:for="{{badges}}" wx:key="key">{{item.label}}={{item.value}}</text>
+      <text class="tag tag-outline">{{grade}}</text>
+      <text class="tag tag-warn" wx:if="{{item.disputed}}">有争议</text>
+    </view>
+
+    <!-- 说人话：默认展开，视觉权重最高 -->
+    <view class="plain-block">
+      <text class="plain-kicker">说人话</text>
+      <text class="plain-text">{{item.p}}</text>
+    </view>
+
+    <view wx:if="{{tip}}" class="tip-block">
+      <text class="plain-kicker">怎么说</text>
+      <text class="plain-text">{{tip}}</text>
+    </view>
+
+    <view wx:if="{{detail}}">
+      <view class="detail-field">
+        <text class="field-name">成本</text>
+        <text class="field-value">{{detail.costText || '原文未提供'}}</text>
+      </view>
+      <view class="detail-field">
+        <text class="field-name">收益</text>
+        <text class="field-value">{{detail.gainText || '原文未提供'}}</text>
+        <text class="t-mute" wx:if="{{detail.gainTrimmed}}">以上为节选，完整原文请点下方来源链接核对。</text>
+      </view>
+    </view>
+
+    <view class="detail-field">
+      <text class="field-name">证据等级</text>
+      <text class="field-value">{{grade}} · {{evType}}</text>
+    </view>
+
+    <!-- 备注：不允许折叠 -->
+    <view class="detail-field remark-field" wx:if="{{detail && detail.remark}}">
+      <text class="field-name">备注（适用人群 / 争议 / 例外）</text>
+      <text class="field-value">{{detail.remark}}</text>
+    </view>
+
+    <!-- 证据护照 -->
+    <view class="evidence-panel">
+      <view class="row-between" bindtap="toggleEvidence">
+        <text class="t-title">证据护照</text>
+        <text class="section-more">{{evidenceOpen ? '收起' : '展开'}} ›</text>
+      </view>
+      <text class="t-small">把 A / B / C 展开成四个能核对的问题。</text>
+
+      <block wx:if="{{evidenceOpen}}">
+        <view class="ev-row"><text class="ev-q">这是什么类型的证据</text><text class="ev-a">{{evidence.type}}</text></view>
+        <view class="ev-row"><text class="ev-q">有多硬</text><text class="ev-a">{{evidence.sample}}</text></view>
+        <view class="ev-row"><text class="ev-q">有没有反方</text>
+          <block wx:if="{{evidence.hasBoth}}">
+            <text class="ev-a">正方：{{evidence.pro}}</text>
+            <text class="ev-a">反方：{{evidence.con}}</text>
+          </block>
+          <text class="ev-a" wx:else>{{evidence.noConText}}</text>
+        </view>
+        <view class="ev-row"><text class="ev-q">会不会推到我身上</text><text class="ev-a">{{evidence.relativeHint}}</text></view>
+        <text class="t-mute">{{evidence.machineNote}}</text>
+      </block>
+    </view>
+
+    <!-- 来源：默认折叠，链接可复制 -->
+    <view class="source-panel">
+      <view class="row-between" bindtap="toggleSource">
+        <text class="t-title">来源</text>
+        <text class="section-more">{{sourceOpen ? '收起' : '展开'}} ›</text>
+      </view>
+      <block wx:if="{{sourceOpen && detail}}">
+        <text class="field-value" style="margin-top:16rpx">{{detail.source || '原文未提供'}}</text>
+        <text class="t-mute" wx:if="{{detail.sourceTrimmed}}">来源文字为节选，下方链接为全量抽取结果。</text>
+        <view wx:for="{{detail.links}}" wx:key="*this" class="link-row" data-url="{{item}}" bindtap="copyLink">
+          <text class="link-text">{{item}}</text>
+        </view>
+        <text wx:if="{{linkCount === 0}}" class="t-mute">这条没有外链；链接可能失效，建议搜索标题。</text>
+        <button class="btn btn-ghost btn-sm" style="margin-top:16rpx" wx:if="{{linkCount > 0}}" bindtap="copyAllLinks">复制全部链接</button>
+      </block>
+    </view>
+
+    <!-- 变更雷达 -->
+    <view class="card" style="margin-top:24rpx">
+      <text class="t-title">变更雷达</text>
+      <text class="t-small" style="display:block;margin-top:10rpx">{{bookTitle}} · 当前数据 {{versionLabel}} · 你上次看到 {{seenCommit}}</text>
+      <text class="t-small" style="display:block;margin-top:8rpx">内容许可：{{bookLicense}}</text>
+      <text class="t-small" style="display:block;margin-top:8rpx">静态版只比对本地数据版本，不会自动推送。正式版需由服务端比对上游 updates.json，且政策类条目必须人工复核后才下发。</text>
+    </view>
+
+    <view wx:if="{{disclaimer}}" class="notice notice-danger" style="margin-top:24rpx">{{disclaimer}}</view>
+
+    <view class="action-bar">
+      <button class="btn {{favorited ? 'btn-ghost' : 'btn-outline'}} btn-sm" style="flex:1" bindtap="toggleFavorite">{{favorited ? '已收藏' : '收藏'}}</button>
+      <button class="btn btn-primary btn-sm" style="flex:1.4;margin-left:16rpx" bindtap="openRemindPicker">{{inTask ? '已在清单' : '加入清单'}}</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;margin-left:16rpx" open-type="share">分享</button>
+    </view>
+
+    <view class="disclaimer">{{footerNote}}</view>
+  </block>
+
+  <view wx:if="{{showRemindPicker}}" class="mask" bindtap="closeRemindPicker">
+    <view class="sheet" catchtap="noop">
+      <text class="t-title">加入清单</text>
+      <text class="t-small" style="margin-top:12rpx">这条来自原书，不是法定时限。可以设一个你自己的提醒日，也可以不设。</text>
+      <picker mode="date" value="{{remindDate}}" end="{{dateEnd}}" bindchange="onRemindDate">
+        <view class="sheet-picker">{{remindDate}} ›</view>
+      </picker>
+      <button class="btn btn-primary" style="margin-top:20rpx" bindtap="addWithRemind">设这个提醒日</button>
+      <button class="btn btn-ghost" style="margin-top:12rpx" bindtap="addWithoutRemind">不设，进无期限待办</button>
+      <button class="btn btn-ghost" style="margin-top:12rpx" bindtap="closeRemindPicker">取消</button>
+    </view>
+  </view>
+</view>

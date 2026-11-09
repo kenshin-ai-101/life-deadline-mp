@@ -1,0 +1,133 @@
+<view class="page">
+  <view class="tabbar-inline">
+    <view class="tab-cell {{tab === 'pending' ? 'on' : ''}}" data-tab="pending" bindtap="switchTab">待办 · {{openTasks.length}}</view>
+    <view class="tab-cell {{tab === 'done' ? 'on' : ''}}" data-tab="done" bindtap="switchTab">已完成 · {{doneTasks.length}}</view>
+    <view class="tab-cell {{tab === 'favorites' ? 'on' : ''}}" data-tab="favorites" bindtap="switchTab">收藏 · {{favorites.length}}</view>
+  </view>
+
+  <view wx:if="{{viewState === 'error'}}" class="card"><text class="t-body">本地数据读取失败。</text></view>
+
+  <block wx:elif="{{viewState === 'ready'}}">
+    <view wx:if="{{!notifyHintDismissed}}" class="notice notice-blue">
+      静态版没有服务端，订阅消息暂不下发；到期提醒由红点、首页提示条和这张清单兜底。
+      <text class="hint-dismiss" bindtap="dismissHint">知道了</text>
+    </view>
+
+    <block wx:if="{{tab === 'favorites'}}">
+      <view wx:if="{{favorites.length === 0}}" class="empty">
+        <view class="empty-icon">○</view>
+        <text class="t-small">在条目详情里点收藏，会汇总到这里</text>
+      </view>
+      <view class="todo-card" wx:for="{{favorites}}" wx:key="id" data-id="{{item.id}}" bindtap="goItem">
+        <view class="row-between">
+          <view class="grow">
+            <text class="t-title">{{item.title}}</text>
+            <text class="t-small" style="display:block;margin-top:6rpx">{{item.section}} · {{item.id}}</text>
+          </view>
+          <text class="chev">›</text>
+        </view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view wx:if="{{tab === 'pending' && (overdueCount > 0 || weekCount > 0)}}" class="summary-bar">
+        <text class="t-small">{{overdueCount}} 件已过期 · {{weekCount}} 件 7 天内到期</text>
+      </view>
+
+      <view wx:if="{{(tab === 'pending' ? openTasks.length : doneTasks.length) === 0}}" class="empty">
+        <view class="empty-icon">○</view>
+        <text class="t-body">{{tab === 'pending' ? '清单是空的' : '还没有办完的事'}}</text>
+        <text class="t-small" style="margin-top:10rpx">{{tab === 'pending' ? '从首页选一个处境，填个日期就会生成待办。' : '办完的事会按事件归到这里。'}}</text>
+        <button wx:if="{{tab === 'pending'}}" class="btn btn-primary btn-sm" style="margin:28rpx auto 0;width:320rpx" bindtap="goCreate">新建事件</button>
+      </view>
+
+      <block wx:else>
+        <view class="view-switch">
+          <text class="view-switch-hint">{{grouped ? '按事件分组 · 共 ' + activeGroups.length + ' 组' : '全部平铺展示'}}</text>
+          <text class="view-switch-btn" bindtap="toggleGrouped">{{grouped ? '平铺查看' : '按事件分组'}}</text>
+        </view>
+
+        <block wx:if="{{grouped}}">
+          <view class="group" wx:for="{{activeGroups}}" wx:key="key">
+            <view class="group-head" data-key="{{item.key}}" bindtap="toggleGroup">
+              <view class="group-badge {{item.urgent ? 'urgent' : ''}} {{item.badgePlain ? 'plain' : ''}}">{{item.badge}}</view>
+              <view class="grow" style="margin-left:20rpx">
+                <view class="row-between">
+                  <text class="group-name">{{item.name}}</text>
+                  <text class="group-count">{{item.countText}}</text>
+                </view>
+                <text class="t-small" style="display:block;margin-top:6rpx">{{item.subText}}</text>
+                <view class="group-meta">
+                  <text class="tag tag-plain">{{item.progressText}}</text>
+                  <text class="tag tag-danger" wx:if="{{item.overdueCount > 0}}">{{item.overdueCount}} 件已过期</text>
+                  <text class="tag tag-warn" wx:elif="{{item.weekCount > 0}}">{{item.weekCount}} 件 7 天内</text>
+                </view>
+              </view>
+              <text class="group-fold">{{item.collapsed ? '展开' : '收起'}}</text>
+            </view>
+
+            <view wx:if="{{!item.collapsed}}" class="group-body">
+              <view class="todo-card {{task.isOverdue ? 'is-overdue' : ''}}"
+                    wx:for="{{item.tasks}}" wx:for-item="task" wx:key="id"
+                    data-event="{{task.eventId}}" bindtap="goTimeline">
+                <view class="row-top">
+                  <block wx:if="{{tab === 'pending'}}">
+                    <view class="check" data-id="{{task.id}}" catchtap="toggleDone"></view>
+                    <view class="grow" style="margin-left:20rpx">
+                      <text class="t-title">{{task.title}}</text>
+                      <text class="t-small" style="display:block;margin-top:6rpx">{{task.kindLabel}} · {{task.deadlineLabel}}</text>
+                    </view>
+                    <view class="todo-date">
+                      <text class="t-small">{{task.dateText}}</text>
+                      <text class="t-small {{task.isOverdue ? 't-danger' : 't-accent'}}" style="display:block">{{task.relText}}</text>
+                    </view>
+                  </block>
+                  <block wx:else>
+                    <view class="check checked" data-id="{{task.id}}" catchtap="toggleDone">✓</view>
+                    <view class="grow" style="margin-left:20rpx">
+                      <text class="t-title t-strike">{{task.title}}</text>
+                      <text class="t-small" style="display:block;margin-top:6rpx">{{task.dateText}} · 点一下可撤销完成</text>
+                    </view>
+                  </block>
+                </view>
+              </view>
+            </view>
+
+            <view wx:if="{{item.eventId}}" class="group-foot" data-event="{{item.eventId}}" bindtap="goTimeline">
+              <text class="section-more">查看「{{item.name}}」时间轴 ›</text>
+            </view>
+          </view>
+        </block>
+
+        <block wx:else>
+          <block wx:if="{{tab === 'pending'}}">
+            <view class="todo-card" wx:for="{{openTasks}}" wx:key="id" data-event="{{item.eventId}}" bindtap="goTimeline">
+              <view class="row-top">
+                <view class="check" data-id="{{item.id}}" catchtap="toggleDone"></view>
+                <view class="grow" style="margin-left:20rpx">
+                  <text class="t-title">{{item.title}}</text>
+                  <text class="t-small" style="display:block;margin-top:6rpx">{{item.eventName}} · {{item.kindLabel}}</text>
+                </view>
+                <view class="todo-date">
+                  <text class="t-small">{{item.dateText}}</text>
+                  <text class="t-small {{item.isOverdue ? 't-danger' : 't-accent'}}" style="display:block">{{item.relText}}</text>
+                </view>
+              </view>
+            </view>
+          </block>
+          <block wx:else>
+            <view class="todo-card" wx:for="{{doneTasks}}" wx:key="id" data-event="{{item.eventId}}" bindtap="goTimeline">
+              <view class="row-top">
+                <view class="check checked" data-id="{{item.id}}" catchtap="toggleDone">✓</view>
+                <view class="grow" style="margin-left:20rpx">
+                  <text class="t-title t-strike">{{item.title}}</text>
+                  <text class="t-small" style="display:block;margin-top:6rpx">{{item.eventName}} · 点一下可撤销完成</text>
+                </view>
+              </view>
+            </view>
+          </block>
+        </block>
+      </block>
+    </block>
+  </block>
+</view>
