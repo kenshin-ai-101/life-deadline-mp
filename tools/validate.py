@@ -127,6 +127,7 @@ js_files = [os.path.join(BASE, p + '.js') for p in pages]
 js_files += [os.path.join(BASE, f) for f in ('app.js', 'utils/store.js', 'utils/date.js',
                                             'utils/format.js', 'utils/library.js', 'utils/updates.js',
                                             'utils/profile.js', 'utils/mine-stats.js',
+                                            'utils/sources.js',
                                             'pkg-insight/recommend.js',
                                             'data/rules.js', 'data/items.js',
                                             'data/catalog.js', 'data/meta.js',

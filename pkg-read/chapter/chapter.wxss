@@ -67,7 +67,14 @@ page { background: #F6F5F0; }
 .fold.closed { opacity: .75; }
 .fv { font-size: 20rpx; }
 .fold-body { font-size: 23rpx; color: #3C4858; line-height: 1.85; padding: 16rpx 4rpx 20rpx; }
-.src-line { font-size: 21rpx; color: #226B60; word-break: break-all; margin-top: 8rpx; }
+.fold-cnt { font-size: 21rpx; color: #8A94A6; }
+.src-body { margin: 10rpx 0 4rpx; padding: 18rpx 20rpx; background: #EFEEE7; border-radius: 12rpx; }
+.src-line { display: flex; align-items: flex-start; gap: 12rpx; margin-bottom: 12rpx; }
+.src-line:last-of-type { margin-bottom: 0; }
+.src-idx { flex: 0 0 auto; min-width: 52rpx; font-size: 21rpx; color: #226B60; line-height: 1.7; }
+.src-txt { flex: 1; min-width: 0; font-size: 21rpx; color: #3C4858; line-height: 1.7; word-break: break-all; }
+.src-url { color: #226B60; word-break: break-all; }
+.src-extra { display: block; font-size: 19rpx; color: #8A94A6; margin-top: 4rpx; }
 .s-ev { font-size: 21rpx; color: #727B75; margin-top: 12rpx; }
 
 .s-actions { display: flex; justify-content: flex-end; margin-top: 18rpx; }

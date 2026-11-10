@@ -5,6 +5,7 @@ const socialDetails = require('../../data/social-details.js');
 const store = require('../../utils/store.js');
 const fmt = require('../../utils/format.js');
 const lib = require('../../utils/library.js');
+const sources = require('../../utils/sources.js');
 const date = require('../../utils/date.js');
 const meta = require('../../data/meta.js');
 
@@ -29,6 +30,10 @@ Page({
     evType: '',
     disclaimer: '',
     sourceOpen: false,
+    sourceRefs: [],
+    sourceCount: 0,
+    sourceMulti: false,
+    linkCount: 0,
     evidenceOpen: false,
     favorited: false,
     inTask: false,
@@ -52,6 +57,7 @@ Page({
     const bookId = fmt.bookIdOf(id);
     const detailMap = bookId === 'social' ? socialDetails : details;
     const d = detailMap[id];
+    const refs = sources.buildRefs(d);
     if (!it) {
       this.setData({ viewState: 'missing' });
       return;
@@ -82,7 +88,10 @@ Page({
       remindDate: date.today(),
       dateEnd: date.addYears(date.today(), 2),
       evidence: this.buildEvidence(it, d),
-      linkCount: d && d.links ? d.links.length : 0
+      sourceRefs: refs.refs,
+      sourceCount: refs.count,
+      sourceMulti: refs.multi,
+      linkCount: refs.linkCount
     });
     wx.setNavigationBarTitle({ title: it.t.slice(0, 14) });
     store.track('item_view', { item_id: id, from: query.from || 'unknown' });
@@ -125,12 +134,14 @@ Page({
   },
 
   copyAllLinks() {
-    const links = (this.data.detail || {}).links || [];
-    if (!links.length) {
-      wx.showToast({ title: '这条没有外链', icon: 'none' });
+    const refs = this.data.sourceRefs || [];
+    if (!refs.length) {
+      wx.showToast({ title: '这条没有来源', icon: 'none' });
       return;
     }
-    wx.setClipboardData({ data: links.join('\n') });
+    const text = refs.map(r => (this.data.sourceMulti ? '[' + r.no + '] ' : '') + r.text).join('\n');
+    wx.setClipboardData({ data: text });
+    wx.showToast({ title: '来源已复制（带编号）', icon: 'none' });
   },
 
   toggleFavorite() {

@@ -8,3 +8,20 @@
 }
 .tip-block .plain-kicker { color: #226B60; margin-bottom: 10rpx; }
 .tip-block .plain-text { color: #1F2A37; font-size: 28rpx; line-height: 1.8; }
+
+/* 来源：多条时用 [1] [2] [3] 逐条区分 */
+.src-head { display: flex; align-items: baseline; }
+.src-count { font-size: 24rpx; color: #727B75; }
+.ref-row {
+  display: flex; align-items: flex-start;
+  padding: 18rpx 0 4rpx; margin-top: 16rpx;
+  border-top: 1rpx solid #E5E7E0;
+}
+.ref-idx { flex: 0 0 auto; width: 62rpx; font-size: 23rpx; color: #226B60; line-height: 1.75; }
+.ref-txt {
+  flex: 1; min-width: 0;
+  font-size: 24rpx; color: #3C4858; line-height: 1.75; word-break: break-all;
+}
+.ref-txt.solo { font-size: 26rpx; }
+.ref-url { color: #226B60; word-break: break-all; }
+.ref-extra { display: block; font-size: 20rpx; color: #8A94A6; margin-top: 6rpx; }

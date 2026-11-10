@@ -241,7 +241,53 @@ ok('切换两本书的收藏都能取出处', (() => {
   return !!row && row.sub.indexOf('人情世故指南') === 0 && !!row.title;
 })());
 
-console.log('\n[10] 清理');
+console.log('\n[10] 来源编号 [1][2][3]');
+const srcUtil = require(path.join(ROOT, 'utils/sources.js'));
+const hltbDetails = require(path.join(ROOT, 'pkg-read/data/details.js'));
+ok('来源模块导出齐全', ['cleanSource', 'splitCandidates', 'groupReferences', 'runsOf', 'buildRefs']
+  .every(k => typeof srcUtil[k] === 'function'));
+ok('md 的 <URL> 尖括号被去掉', !/[<>]/.test(srcUtil.cleanSource('报告 <https://a.com/x>；另一份')));
+ok('截断未闭合的链接被丢弃', srcUtil.cleanSource('WHO … <https://who.int/a') === 'WHO …');
+const quoted = srcUtil.splitCandidates('条例第二十七条：「甲；乙」；另一份报告. <https://a.com/x>');
+ok('引号内分号不切分、引号外切分', quoted.length === 2 && quoted[0].indexOf('甲；乙') >= 0);
+const sameLaw = srcUtil.groupReferences('条例第二十七条：「甲」；第二十八条：「乙」. <https://a.com/x>');
+ok('同一法条的多个条款合并为 1 条来源', sameLaw.length === 1 && sameLaw[0].indexOf('第二十八条') >= 0);
+const multiLaw = srcUtil.groupReferences('报告甲. <https://a.com/x>；报告乙. <https://b.com/y>');
+ok('两份独立文献拆成 2 条', multiLaw.length === 2);
+const runs = srcUtil.runsOf('WHO (2025). 报告. https://www.who.int/a');
+ok('URL 被拆成可点 runs', runs.some(r => r.url === true && r.t === 'https://www.who.int/a'));
+const ref011 = srcUtil.buildRefs(hltbDetails['01-1']);
+ok('01-1 有多条来源且启用编号', ref011.multi && ref011.count >= 3);
+ok('01-1 编号从 1 连续递增', ref011.refs.every((r, i) => r.no === i + 1));
+ok('01-1 节选外链接有 extra 标记', ref011.refs.some(r => r.extra && r.runs[0].url));
+const ref014 = srcUtil.buildRefs(hltbDetails['01-4']);
+ok('01-4 法条条款未被误拆成独立编号', ref014.refs[0].text.indexOf('第二十八条') >= 0 &&
+  ref014.refs.filter(r => !r.extra).length <= 3);
+const refSocial = srcUtil.buildRefs(socialDetails['rq01-1']);
+ok('单条来源仍是 1 个编号项', refSocial.count === 1 && refSocial.refs[0].no === 1 && refSocial.linkCount === 0);
+const chapterWxml = require('fs').readFileSync(path.join(ROOT, 'pkg-read/chapter/chapter.wxml'), 'utf8');
+ok('章节页来源折叠行始终显示「来源 · N 条」',
+  /来源<text class="fold-cnt"> · \{\{item\.refCount\}\} 条<\/text>/.test(chapterWxml));
+ok('章节页来源编号对单条也渲染（无 multi 条件）',
+  /<text class="src-idx">\[\{\{ref\.no\}\}\]<\/text>/.test(chapterWxml) && chapterWxml.indexOf('refMulti') === -1);
+ok('空 detail 安全回退', srcUtil.buildRefs(null).count === 0 && srcUtil.buildRefs({}).count === 0);
+let badNo = 0, covered = 0, multiCnt = 0;
+Object.keys(hltbDetails).forEach(id => {
+  const d = hltbDetails[id];
+  const r = srcUtil.buildRefs(d);
+  if (r.multi) multiCnt++;
+  if (r.refs.some((x, i) => x.no !== i + 1)) badNo++;
+  const all = r.refs.map(x => x.text).join('\n');
+  if ((d.links || []).every(u => all.indexOf(u) >= 0)) covered++;
+});
+ok('全书 772 条编号连续', badNo === 0);
+ok('多来源条目超过 600 条', multiCnt > 600, String(multiCnt));
+ok('所有全量链接都能在编号列表里找到', covered === Object.keys(hltbDetails).length,
+  covered + ' / ' + Object.keys(hltbDetails).length);
+ok('复制文本保留编号', srcUtil.buildRefs(hltbDetails['01-1']).refs
+  .map(r => '[' + r.no + '] ' + r.text).join('\n').indexOf('[1] ') === 0);
+
+console.log('\n[11] 清理');
 store.clearAll();
 ok('清空后无事件', store.getEvents().length === 0);
 ok('清空后无成员', store.getMembers().length === 0);

@@ -2,6 +2,7 @@
 // 两本书共用：hltb 长文本在本分包 details.js，social 长文本在主包 social-details.js。
 'use strict';
 const lib = require('../../utils/library.js');
+const sources = require('../../utils/sources.js');
 const hltbDetails = require('../data/details.js');
 const socialDetails = require('../../data/social-details.js');
 
@@ -40,6 +41,7 @@ Page({
     const raw = lib.getItems(bookId, sec);
     const allSteps = raw.map(it => {
       const d = detailMap[it.id] || {};
+      const refs = sources.buildRefs(d);
       return {
         id: it.id,
         no: it.n,
@@ -53,8 +55,9 @@ Page({
         costText: d.costText || '',
         gainText: d.gainText || '',
         remark: d.remark || '',
-        source: d.source || '',
-        links: d.links || [],
+        refCount: refs.count,
+        refMulti: refs.multi,
+        refList: refs.refs,
         evType: d.evType || '',
         costOpen: false,
         gainOpen: false,
@@ -111,6 +114,13 @@ Page({
 
   onItemTap(e) {
     wx.navigateTo({ url: '/pkg-read/detail/detail?id=' + e.currentTarget.dataset.id });
+  },
+
+  onCopyRefUrl(e) {
+    const url = e.currentTarget.dataset.url;
+    if (!url) return;
+    wx.setClipboardData({ data: url });
+    wx.showToast({ title: '链接已复制', icon: 'none' });
   },
 
   onChapterNav(e) {

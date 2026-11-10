@@ -74,20 +74,30 @@
       </block>
     </view>
 
-    <!-- 来源：默认折叠，链接可复制 -->
+    <!-- 来源：多条时按 [1] [2] [3] 区分；默认折叠，链接可复制 -->
     <view class="source-panel">
       <view class="row-between" bindtap="toggleSource">
-        <text class="t-title">来源</text>
+        <view class="src-head">
+          <text class="t-title">来源</text>
+          <text class="src-count" wx:if="{{sourceCount > 1}}"> · {{sourceCount}} 条</text>
+        </view>
         <text class="section-more">{{sourceOpen ? '收起' : '展开'}} ›</text>
       </view>
-      <block wx:if="{{sourceOpen && detail}}">
-        <text class="field-value" style="margin-top:16rpx">{{detail.source || '原文未提供'}}</text>
-        <text class="t-mute" wx:if="{{detail.sourceTrimmed}}">来源文字为节选，下方链接为全量抽取结果。</text>
-        <view wx:for="{{detail.links}}" wx:key="*this" class="link-row" data-url="{{item}}" bindtap="copyLink">
-          <text class="link-text">{{item}}</text>
+      <block wx:if="{{sourceOpen}}">
+        <view class="ref-row" wx:for="{{sourceRefs}}" wx:key="no">
+          <text class="ref-idx" wx:if="{{sourceMulti}}">[{{item.no}}]</text>
+          <view class="ref-txt {{sourceMulti ? '' : 'solo'}}">
+            <block wx:for="{{item.runs}}" wx:for-item="run" wx:key="index">
+              <text wx:if="{{run.url}}" class="ref-url" data-url="{{run.t}}" bindtap="copyLink">{{run.t}}</text>
+              <text wx:else>{{run.t}}</text>
+            </block>
+            <text class="ref-extra" wx:if="{{item.extra}}">原文节选外 · 全量抽取的链接</text>
+          </view>
         </view>
-        <text wx:if="{{linkCount === 0}}" class="t-mute">这条没有外链；链接可能失效，建议搜索标题。</text>
-        <button class="btn btn-ghost btn-sm" style="margin-top:16rpx" wx:if="{{linkCount > 0}}" bindtap="copyAllLinks">复制全部链接</button>
+        <text class="t-mute" style="display:block;margin-top:12rpx" wx:if="{{sourceCount === 0}}">原文未提供来源，也没有外链；建议搜索标题核对。</text>
+        <text class="t-mute" style="display:block;margin-top:12rpx" wx:if="{{detail.sourceTrimmed}}">来源文字为节选，标「原文节选外」的链接来自全量抽取结果。</text>
+        <text wx:if="{{sourceCount > 0 && linkCount === 0}}" class="t-mute" style="display:block;margin-top:12rpx">这条没有外链；链接可能失效，建议搜索标题。</text>
+        <button class="btn btn-ghost btn-sm" style="margin-top:16rpx" wx:if="{{sourceCount > 0}}" bindtap="copyAllLinks">复制全部来源（带编号）</button>
       </block>
     </view>
 

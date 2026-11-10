@@ -41,11 +41,19 @@
           <view class="fold {{item.noteOpen ? '' : 'closed'}}" data-idx="{{index}}" data-field="noteOpen" catchtap="onToggleFold">备注<text class="fv">▾</text></view>
           <view class="fold-body" wx:if="{{item.noteOpen}}">{{item.remark}}</view>
         </block>
-        <block wx:if="{{item.source}}">
-          <view class="fold {{item.refsOpen ? '' : 'closed'}}" data-idx="{{index}}" data-field="refsOpen" catchtap="onToggleFold">来源<text class="fv">▾</text></view>
-          <view class="fold-body" wx:if="{{item.refsOpen}}">
-            <view>{{item.source}}</view>
-            <view class="src-line" wx:for="{{item.links}}" wx:for-item="link" wx:key="*this">{{link}}</view>
+        <block wx:if="{{item.refCount > 0}}">
+          <view class="fold {{item.refsOpen ? '' : 'closed'}}" data-idx="{{index}}" data-field="refsOpen" catchtap="onToggleFold">来源<text class="fold-cnt"> · {{item.refCount}} 条</text><text class="fv">▾</text></view>
+          <view class="src-body" wx:if="{{item.refsOpen}}">
+            <view class="src-line" wx:for="{{item.refList}}" wx:for-item="ref" wx:key="no">
+              <text class="src-idx">[{{ref.no}}]</text>
+              <view class="src-txt">
+                <block wx:for="{{ref.runs}}" wx:for-item="run" wx:key="index">
+                  <text wx:if="{{run.url}}" class="src-url" data-url="{{run.t}}" catchtap="onCopyRefUrl">{{run.t}}</text>
+                  <text wx:else>{{run.t}}</text>
+                </block>
+                <text class="src-extra" wx:if="{{ref.extra}}">原文节选外 · 全量抽取</text>
+              </view>
+            </view>
             <view class="s-ev" wx:if="{{item.evType}}">证据类型：{{item.evType}}</view>
           </view>
         </block>
