@@ -9,7 +9,8 @@
     "pages/catalog/catalog",
     "pages/book-detail/book-detail",
     "pages/topic-aggregate/topic-aggregate",
-    "pages/mine/mine"
+    "pages/mine/mine",
+    "pages/stat-detail/stat-detail"
   ],
   "subpackages": [
     {

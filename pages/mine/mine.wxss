@@ -1,1 +1,11 @@
 /* 我的 · 页面局部样式，全局样式见 app.wxss */
+
+/* 统计卡：可点击态与角标箭头 */
+.stat-cell { position: relative; }
+.stat-cell-hover { background: #E5EEE7; }
+.stat-cell .t-mute { display: block; }
+.stat-arrow {
+  position: absolute; right: 14rpx; top: 8rpx;
+  font-size: 30rpx; line-height: 1; color: #226B60; opacity: .7;
+}
+.stat-tip { margin: -6rpx 4rpx 26rpx; }

@@ -6,11 +6,14 @@
   </view>
 
   <view class="stat-grid">
-    <view class="stat-cell" wx:for="{{stats}}" wx:key="label">
+    <view class="stat-cell" wx:for="{{stats}}" wx:key="key"
+          data-type="{{item.key}}" bindtap="onStatTap" hover-class="stat-cell-hover">
       <text class="stat-num">{{item.value}}</text>
       <text class="t-mute">{{item.label}}</text>
+      <text class="stat-arrow">›</text>
     </view>
   </view>
+  <view class="stat-tip"><text class="t-mute">点任一数字，查看它背后的明细 ›</text></view>
 
   <view class="section-head"><text class="section-title">内容版本</text><text class="section-label">DATA</text></view>
   <view class="card" bindtap="copyVersion">

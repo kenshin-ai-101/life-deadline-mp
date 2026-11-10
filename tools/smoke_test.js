@@ -195,7 +195,53 @@ ok('画像主题可映射为文字', (lib.getTopic('sleep') || {}).name === '睡
 prof.clearProfileV2();
 ok('画像可清空', prof.getProfileV2() === null);
 
-console.log('\n[9] 清理');
+console.log('\n[9] 我的页统计明细');
+store.clearAll();
+const ms = require(path.join(ROOT, 'utils/mine-stats.js'));
+ok('5 类统计元信息齐全', ms.TYPES.length === 5 && ms.TYPES.every(t =>
+  t.key && t.label && t.short && t.unit && t.hint && t.empty && t.emptyHint && t.cta && t.tab));
+ok('空态 CTA 都指向 tab 页', ms.TYPES.every(t => t.tab.indexOf('/pages/') === 0));
+ok('空态下 5 类计数均为 0', ms.TYPES.every(t => ms.countOf(t.key) === 0));
+ok('空态下 5 类明细均为空', ms.TYPES.every(t => ms.rowsOf(t.key).length === 0));
+const statEvent = store.createEvent('childbirth', '2026-11-09', '明细测试', '');
+ok('建事件后进行中事件 +1', ms.countOf('events') === 1);
+ok('建事件后待办动作 = 事件动作数', ms.countOf('tasks') === statEvent.tasks.length,
+  ms.countOf('tasks') + ' / ' + statEvent.tasks.length);
+const favId = items[0].id;
+store.toggleFavorite(favId);
+ok('收藏 +1', ms.countOf('favorites') === 1);
+const statMember = store.addMember({ name: '妈妈', age: 62, gender: '女', conditions: ['高血压'] });
+ok('成员 +1', ms.countOf('members') === 1);
+store.addReceipt(statEvent.tasks[0].id, '已交材料', ['/tmp/a.png', '/tmp/b.png']);
+ok('回执 +1', ms.countOf('receipts') === 1);
+const cardStats = ms.stats();
+ok('统计卡 5 项且都带 key / 数字', cardStats.length === 5 &&
+  cardStats.every(s => s.key && s.label && typeof s.value === 'number'));
+ok('统计卡口径与明细条数完全一致', cardStats.every(s => s.value === ms.rowsOf(s.key).length));
+ok('事件明细可跳时间轴', ms.rowsOf('events')[0].url === '/pages/timeline/timeline?id=' + statEvent.event.id);
+ok('事件明细带办完进度', /\d+ \/ \d+ 已办完/.test(ms.rowsOf('events')[0].tag));
+ok('待办明细都带跳转与来源', ms.rowsOf('tasks').every(r => !!r.url && !!r.sub));
+ok('收藏明细标题来自条目且可跳原文', ms.rowsOf('favorites')[0].title === items[0].t &&
+  ms.rowsOf('favorites')[0].url === '/pkg-read/detail/detail?id=' + favId);
+ok('收藏明细标注书名', ms.rowsOf('favorites')[0].sub.indexOf(fmt.bookTitleOf(favId)) === 0);
+ok('成员明细可跳成员详情', ms.rowsOf('members')[0].url ===
+  '/pkg-family/member-detail/member-detail?id=' + statMember.id);
+const rcRows = ms.rowsOf('receipts');
+ok('回执明细含备注 / 图片 / 关联动作', rcRows[0].note === '已交材料' &&
+  rcRows[0].images.length === 2 && rcRows[0].hasImages && !!rcRows[0].url);
+ok('回执明细带格式化时间', /\d{4}-\d{2}-\d{2} \d{2}:\d{2}/.test(rcRows[0].sub));
+ok('所有明细行都有 id / 标题 / 副信息', ms.TYPES.every(t =>
+  ms.rowsOf(t.key).every(r => r.id && r.title && r.sub)));
+ok('未知 type 安全回退到事件', ms.typeOf('unknown').key === 'events' && ms.rowsOf('unknown').length === 0);
+ok('切换两本书的收藏都能取出处', (() => {
+  const sid = require(path.join(ROOT, 'data/social-items.js'))[0].id;
+  store.toggleFavorite(sid);
+  const row = ms.rowsOf('favorites').filter(r => r.id === sid)[0];
+  store.toggleFavorite(sid);
+  return !!row && row.sub.indexOf('人情世故指南') === 0 && !!row.title;
+})());
+
+console.log('\n[10] 清理');
 store.clearAll();
 ok('清空后无事件', store.getEvents().length === 0);
 ok('清空后无成员', store.getMembers().length === 0);

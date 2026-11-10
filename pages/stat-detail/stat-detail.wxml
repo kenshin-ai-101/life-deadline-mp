@@ -1,0 +1,56 @@
+<view class="page sd-page">
+  <view class="card-dark sd-head">
+    <text class="t-mono">LOCAL DATA · DETAIL</text>
+    <view class="row-between sd-head-row">
+      <text class="t-lg t-brand">{{active.label}}</text>
+      <view class="sd-count"><text class="sd-count-num">{{rows.length}}</text><text class="t-small"> {{active.unit}}</text></view>
+    </view>
+    <text class="t-small sd-hint">{{active.hint}}</text>
+  </view>
+
+  <scroll-view class="sd-tabs" scroll-x scroll-into-view="{{scrollIntoView}}">
+    <view class="sd-tabs-inner">
+      <view wx:for="{{types}}" wx:key="key" id="sd-tab-{{item.key}}"
+            class="sd-tab {{activeType === item.key ? 'on' : ''}}"
+            data-key="{{item.key}}" bindtap="switchType" hover-class="sd-tab-hover">{{item.short}} · {{item.value}}</view>
+    </view>
+  </scroll-view>
+
+  <view wx:if="{{rows.length === 0}}" class="card sd-empty">
+    <text class="sd-empty-icon">○</text>
+    <text class="t-title">{{active.empty}}</text>
+    <text class="t-small sd-empty-hint">{{active.emptyHint}}</text>
+    <button class="btn btn-primary sd-cta" bindtap="goCta">{{active.cta}}</button>
+  </view>
+
+  <block wx:else>
+    <view class="sd-list-head"><text class="t-mono">共 {{rows.length}} {{active.unit}} · 点开看详情</text></view>
+    <view wx:for="{{rows}}" wx:key="id" class="card sd-row" hover-class="sd-row-hover"
+          data-id="{{item.id}}" data-url="{{item.url}}" bindtap="onRowTap">
+      <view class="row-between">
+        <text class="sd-row-title">{{item.title}}</text>
+        <text class="chev">›</text>
+      </view>
+      <text class="sd-row-sub">{{item.sub}}</text>
+      <view class="sd-row-foot">
+        <text wx:if="{{item.tag}}" class="tag {{item.tone === 'danger' ? 'tag-danger' : 'tag'}}">{{item.tag}}</text>
+        <text wx:if="{{item.foot}}" class="sd-row-foot-text">{{item.foot}}</text>
+      </view>
+
+      <view wx:if="{{isReceipts && expandedId === item.id}}" class="sd-expand">
+        <text class="t-mono">备注</text>
+        <text class="t-body">{{item.note}}</text>
+        <view wx:if="{{item.hasImages}}" class="sd-imgs">
+          <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" class="sd-img"
+                 src="{{img}}" mode="aspectFill"
+                 data-urls="{{item.images}}" data-current="{{img}}" catchtap="previewImage" />
+        </view>
+        <view class="sd-related" data-url="{{item.url}}" catchtap="openRelated">
+          <text>{{item.url ? '查看关联动作 ›' : '关联动作已删除'}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="disclaimer">这些数字和明细都只来自这台手机上的本地数据，没有账号、没有上传。执行「清空本机数据」后会一起消失。</view>
+</view>

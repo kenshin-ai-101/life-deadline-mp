@@ -1,0 +1,44 @@
+/* 统计明细 · 页面局部样式，全局样式见 app.wxss */
+
+.sd-page { padding-bottom: 60rpx; }
+.sd-head { display: block; }
+.sd-head-row { margin-top: 8rpx; }
+.sd-count { display: flex; align-items: baseline; }
+.sd-count-num { font-size: 56rpx; font-weight: 600; color: #226B60; line-height: 1.1; }
+.sd-hint { display: block; margin-top: 12rpx; color: #226B60; line-height: 1.7; }
+
+.sd-tabs { width: 100%; white-space: nowrap; margin: 26rpx 0 10rpx; }
+.sd-tabs-inner { display: inline-flex; }
+.sd-tab {
+  flex: 0 0 auto; padding: 12rpx 24rpx; margin-right: 14rpx;
+  border-radius: 999rpx; background: #FFFDF9; border: 1rpx solid #E5E7E0;
+  color: #69736D; font-size: 25rpx;
+}
+.sd-tab.on { background: #E5EEE7; color: #226B60; border: 2rpx solid #226B60; font-weight: 600; }
+.sd-tab-hover { opacity: .72; }
+
+.sd-empty { text-align: center; padding: 70rpx 40rpx 60rpx; }
+.sd-empty-icon { display: block; font-size: 72rpx; color: #C9DED1; line-height: 1; margin-bottom: 20rpx; }
+.sd-empty .t-title { display: block; }
+.sd-empty-hint { display: block; margin: 16rpx 0 36rpx; line-height: 1.7; }
+.sd-cta { width: 420rpx; margin: 0 auto; }
+
+.sd-list-head { margin: 24rpx 4rpx 12rpx; }
+.sd-row { position: relative; }
+.sd-row-hover { background: #E5EEE7; }
+.sd-row-title { flex: 1; min-width: 0; font-size: 30rpx; font-weight: 600; color: #1F2A37; line-height: 1.5; }
+.sd-row-sub { display: block; font-size: 24rpx; color: #69736D; line-height: 1.65; margin-top: 10rpx; }
+.sd-row-foot { display: flex; align-items: center; flex-wrap: wrap; margin-top: 14rpx; }
+.sd-row .tag { background: #E5EEE7; color: #226B60; }
+.sd-row-foot-text {
+  flex: 0 0 100%; margin: 10rpx 0 0;
+  font-size: 22rpx; color: #8A94A6; line-height: 1.6;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+
+.sd-expand { margin-top: 20rpx; padding-top: 20rpx; border-top: 1rpx solid #E5E7E0; }
+.sd-expand .t-mono { display: block; margin-bottom: 8rpx; }
+.sd-expand .t-body { display: block; color: #242E2B; }
+.sd-imgs { display: flex; flex-wrap: wrap; margin-top: 18rpx; }
+.sd-img { width: 150rpx; height: 150rpx; margin: 0 12rpx 12rpx 0; border-radius: 12rpx; background: #EFEEE7; }
+.sd-related { margin-top: 16rpx; font-size: 25rpx; font-weight: 600; color: #226B60; }

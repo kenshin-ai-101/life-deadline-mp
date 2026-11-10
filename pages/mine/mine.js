@@ -1,5 +1,6 @@
 const store = require('../../utils/store.js');
 const meta = require('../../data/meta.js');
+const mineStats = require('../../utils/mine-stats.js');
 
 Page({
   data: {
@@ -24,13 +25,8 @@ Page({
   onShow() { this.refresh(); },
 
   refresh() {
-    const s = [
-      { label: '进行中事件', value: store.getEvents().filter(e => e.status === 'active').length },
-      { label: '待办动作', value: store.getOpenTasks().filter(t => t.status !== 'done').length },
-      { label: '收藏条目', value: store.getFavorites().length },
-      { label: '家庭成员', value: store.getMembers().length },
-      { label: '回执', value: store.getReceipts().length }
-    ];
+    // 统计口径统一由 utils/mine-stats.js 提供，与统计明细页共用
+    const s = mineStats.stats();
     const track = store.getTrack();
     const labels = this.data.trackLabels;
     const rows = Object.keys(track)
@@ -38,6 +34,11 @@ Page({
       .map(k => ({ key: k, label: labels[k], count: track[k].count }))
       .sort((a, b) => b.count - a.count);
     this.setData({ stats: s, trackRows: rows });
+  },
+
+  onStatTap(e) {
+    const type = e.currentTarget.dataset.type || 'events';
+    wx.navigateTo({ url: '/pages/stat-detail/stat-detail?type=' + type });
   },
 
   goCalc() { wx.navigateTo({ url: '/pkg-tool/calc/calc' }); },
