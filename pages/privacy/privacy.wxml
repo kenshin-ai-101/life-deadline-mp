@@ -1,0 +1,149 @@
+<view class="page">
+  <view class="pv-head">
+    <text class="t-mono">PRIVACY & DATA</text>
+    <text class="t-lg" style="display:block;margin-top:12rpx">你的数据，在哪</text>
+    <text class="t-small" style="display:block;margin-top:10rpx">
+      这一页把所有数据流向写清楚：存了什么、存在哪、谁能看到、怎么带走、怎么删掉。不写模糊话术。
+    </text>
+  </view>
+
+  <!-- 同步状态 -->
+  <view class="section-head"><text class="section-title">同步状态</text><text class="section-label">SYNC</text></view>
+  <view class="card">
+    <view class="row-between pv-row">
+      <text class="t-small">存放方式</text>
+      <text class="t-body">{{modeText}}</text>
+    </view>
+    <view class="row-between pv-row">
+      <text class="t-small">当前状态</text>
+      <text class="pv-pill pv-{{statusTone}}">{{statusText}}</text>
+    </view>
+    <view class="row-between pv-row">
+      <text class="t-small">上次同步</text>
+      <text class="t-body">{{lastSyncText}}</text>
+    </view>
+    <view class="row-between pv-row" wx:if="{{pending > 0}}">
+      <text class="t-small">待上传</text>
+      <text class="t-body">{{pending}} 类数据</text>
+    </view>
+    <view class="pv-error" wx:if="{{lastError}}">{{lastError}}</view>
+
+    <view class="row-between pv-row pv-row-last" wx:if="{{envConfigured}}">
+      <text class="t-small">允许云端同步</text>
+      <switch checked="{{cloudSync}}" color="#226B60" bindchange="onToggleCloudSync" />
+    </view>
+
+    <view class="pv-actions">
+      <button class="btn btn-primary" bindtap="onSyncNow" disabled="{{busy === 'sync'}}">
+        {{busy === 'sync' ? '同步中…' : '立即同步'}}
+      </button>
+    </view>
+    <text class="t-mute" wx:if="{{!envConfigured}}">
+      当前构建未配置云开发环境，所有数据只存在这台手机。开发者请见 docs/cloud-setup.md。
+    </text>
+    <text class="t-mute" wx:else>环境：{{env}}</text>
+  </view>
+
+  <!-- 本机有什么 -->
+  <view class="section-head"><text class="section-title">这台手机里有什么</text><text class="section-label">ON DEVICE</text></view>
+  <view class="card">
+    <view class="pv-stats">
+      <view class="pv-stat"><text class="pv-num">{{eventCount}}</text><text class="t-mute">事件</text></view>
+      <view class="pv-stat"><text class="pv-num">{{memberCount}}</text><text class="t-mute">家庭成员</text></view>
+      <view class="pv-stat"><text class="pv-num">{{favoriteCount}}</text><text class="t-mute">收藏</text></view>
+      <view class="pv-stat"><text class="pv-num">{{receiptCount}}</text><text class="t-mute">回执</text></view>
+    </view>
+    <text class="t-small" style="display:block;margin-top:16rpx">
+      浏览过哪些条目、搜索过什么，都不上传；搜索历史只留在本机，可随时在搜索页清空。
+    </text>
+  </view>
+
+  <!-- 敏感信息 -->
+  <view class="section-head"><text class="section-title">敏感个人信息</text><text class="section-label">SENSITIVE</text></view>
+  <view class="card">
+    <text class="t-body">家庭成员卡里的姓名、年龄、性别、主要状况，属于敏感个人信息。</text>
+    <text class="t-small" style="display:block;margin-top:12rpx">
+      这类信息需要你单独同意才会保存和同步，不勾选也能正常使用事件、清单、收藏等功能。
+      云端存的是 AES-256-GCM 密文，密钥按账号派生，运维在数据库里看到的是乱码。
+    </text>
+    <view class="row-between pv-row pv-row-last" style="margin-top:8rpx">
+      <text class="t-small">授权状态</text>
+      <text class="pv-pill {{consent.sensitive ? 'pv-ok' : 'pv-pending'}}">{{sensitiveText}}</text>
+    </view>
+    <view class="pv-actions" wx:if="{{consent.sensitive}}">
+      <button class="btn btn-outline pv-danger" bindtap="onRevokeSensitive">撤回授权并删除云端该类数据</button>
+    </view>
+  </view>
+
+  <!-- 匿名统计 -->
+  <view class="section-head"><text class="section-title">匿名使用统计</text><text class="section-label">OPT-IN</text></view>
+  <view class="card">
+    <view class="row-between pv-row pv-row-last">
+      <text class="t-small">上报功能点击次数</text>
+      <switch checked="{{consent.trackOptIn}}" color="#226B60" bindchange="onToggleTrack" />
+    </view>
+    <text class="t-mute" style="display:block;margin-top:8rpx">
+      默认关闭。开启后只上传「功能名 + 次数」，不传内容、不传设备信息、不做用户画像。
+    </text>
+  </view>
+
+  <!-- 你的权利 -->
+  <view class="section-head"><text class="section-title">你的权利</text><text class="section-label">YOUR RIGHTS</text></view>
+  <view class="card" style="padding:0 28rpx">
+    <view class="list-item row-between" bindtap="onExport">
+      <view>
+        <text class="t-body">导出我的全部数据</text>
+        <text class="t-mute" style="display:block">生成 JSON 文件，可另存或发给朋友</text>
+      </view>
+      <text class="chev">›</text>
+    </view>
+    <view class="list-item row-between" bindtap="onDeleteCloud" style="border-bottom:none">
+      <view>
+        <text class="t-body" style="color:#C0392B">删除云端全部数据</text>
+        <text class="t-mute" style="display:block">物理删除，不留备份、不可恢复</text>
+      </view>
+      <text class="chev">›</text>
+    </view>
+  </view>
+
+  <!-- 政策正文 -->
+  <view class="section-head"><text class="section-title">隐私政策要点</text><text class="section-label">v{{privacyVersion}}</text></view>
+  <view class="card">
+    <view class="pv-policy">
+      <text class="pv-h">1. 我们收集什么</text>
+      <text class="pv-p">只有你主动创建的内容：事件与时限、待办、家庭成员卡、收藏、回执备注。不收集通讯录、位置、相册原始文件；回执图片由你拍照后只上传压缩件。</text>
+
+      <text class="pv-h">2. 为什么要收集</text>
+      <text class="pv-p">为了在换手机或重装后把你的时间表还给你。没有这些数据，跨设备恢复无法实现。</text>
+
+      <text class="pv-h">3. 存在哪里</text>
+      <text class="pv-p">本机缓存 + 微信云开发数据库（中国大陆节点）。云端按 openid 隔离，每个用户只能读到自己的数据；小程序端没有数据库直连权限，所有读写都经过云函数校验身份。</text>
+
+      <text class="pv-h">4. 共享与第三方</text>
+      <text class="pv-p">不向任何第三方出售、共享或提供你的数据；不接入广告 SDK；不做用户画像与跨应用追踪。</text>
+
+      <text class="pv-h">5. 保存多久</text>
+      <text class="pv-p">直到你删除。删除是物理删除，包括数据库文档与索引记录，不是"标记为删除"。</text>
+
+      <text class="pv-h">6. 你的权利</text>
+      <text class="pv-p">随时查看、导出、更正、删除自己的数据；可撤回敏感信息授权；可关闭云同步只在本机使用；可要求注销并清空全部云端数据。</text>
+
+      <text class="pv-h">7. 未成年人</text>
+      <text class="pv-p">本工具面向成年人。若你未满 14 周岁，请在监护人陪同下使用，并由监护人代为同意。</text>
+
+      <text class="pv-h">8. 联系我们</text>
+      <text class="pv-p" bindtap="copyContact">privacy@life-deadline.app（点此复制）</text>
+    </view>
+    <text class="t-mute" style="display:block;margin-top:16rpx">版本 v{{privacyVersion}} · 更新于 {{privacyUpdatedAt}}</text>
+  </view>
+
+  <view class="pv-consent" wx:if="{{consent.version < privacyVersion}}">
+    <text class="t-small">你还没有同意当前版本的隐私政策。不同意也能继续在本地使用，但数据不会跨设备同步。</text>
+    <button class="btn btn-primary" style="margin-top:20rpx" bindtap="onAgreePrivacy">我已阅读并同意</button>
+  </view>
+
+  <view class="disclaimer">
+    本页描述与代码实现一一对应：数据表结构见 cloudfunctions/dataSync/lib/schema.js，
+    同步逻辑见 utils/sync.js。若两者不一致，以可执行的代码为准，并请通过上面的邮箱告知我们。
+  </view>
+</view>

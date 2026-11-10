@@ -1,5 +1,10 @@
-// 本地数据层：全部走 wx.setStorageSync，无网络请求、无登录、无云能力。
-// 数据上云时只需替换本文件的读写实现，页面层调用方式不变。
+// 本地数据层：本机存储是「缓存 + 离线队列」，云端是主库。
+// 对外 API 与旧版完全一致，页面代码无需改动；上云逻辑集中在 utils/sync.js。
+//
+// 三条约定：
+//   1. 读永远是同步的（先给缓存，联网后在后台用远端覆盖），所以页面不会出现空窗。
+//   2. 写永远先落本机并标记「脏」，再由 sync.js 异步推云端；断网也不影响使用。
+//   3. 删除要留墓碑（tombstone），否则下次同步会把别的设备上删掉的数据又拉回来。
 const rules = require('../data/rules.js');
 const items = require('../data/items.js');
 const socialItems = require('../data/social-items.js');
@@ -18,6 +23,29 @@ const KEYS = {
   chapterLikes: 'ld_chapter_likes'
 };
 
+// 参与云同步的集合：key -> 云端逻辑集合名（与云函数 lib/schema.js 一一对应）
+const SYNCABLE = {
+  [KEYS.events]: 'events',
+  [KEYS.tasks]: 'tasks',
+  [KEYS.members]: 'members',
+  [KEYS.receipts]: 'receipts',
+  [KEYS.favorites]: 'favorites',
+  [KEYS.chapterFavs]: 'chapterFavs',
+  [KEYS.chapterLikes]: 'chapterLikes',
+  [KEYS.settings]: 'settings'
+};
+
+// 数组元素即主键的集合（收藏类）：删除时按值记墓碑
+const SET_KEYS = [KEYS.favorites, KEYS.chapterFavs, KEYS.chapterLikes];
+
+// 只存在本机、永不上云的偏好（同步状态、授权记录等）
+const LOCAL = {
+  syncMeta: 'ld_sync_meta',      // { lastSyncAt, dirty, openid, migrated }
+  tombstones: 'ld_tombstones',   // { [col]: [id] }
+  consent: 'ld_consent',         // { version, at, sensitive, sensitiveAt, trackOptIn }
+  prefs: 'ld_local_prefs'        // { cloudSync: boolean, ... }
+};
+
 // 两本书的条目共用一张表：id 前缀 rq 为人情世故指南，其余为高性价比人生
 const ITEM_MAP = {};
 items.forEach(it => { ITEM_MAP[it.id] = it; });
@@ -32,7 +60,8 @@ function read(key, fallback) {
   }
 }
 
-function write(key, value) {
+// 纯本地写：不触发脏标记，供同步回写与元数据使用
+function writeRaw(key, value) {
   try {
     wx.setStorageSync(key, value);
     return true;
@@ -40,6 +69,167 @@ function write(key, value) {
     wx.showToast({ title: '本地空间不足', icon: 'none' });
     return false;
   }
+}
+
+function getSyncMeta() {
+  const m = read(LOCAL.syncMeta, null);
+  return {
+    lastSyncAt: (m && m.lastSyncAt) || 0,
+    dirty: (m && m.dirty) || {},
+    openid: (m && m.openid) || '',
+    migrated: !!(m && m.migrated)
+  };
+}
+
+function saveSyncMeta(patch) {
+  const next = Object.assign(getSyncMeta(), patch);
+  writeRaw(LOCAL.syncMeta, next);
+  return next;
+}
+
+function getTombstones() {
+  const t = read(LOCAL.tombstones, null);
+  return t && typeof t === 'object' ? t : {};
+}
+
+function addTombstones(col, ids) {
+  if (!col || !ids || !ids.length) return;
+  const all = getTombstones();
+  const cur = Array.isArray(all[col]) ? all[col] : [];
+  const merged = cur.concat(ids.filter(id => cur.indexOf(id) < 0));
+  all[col] = merged.slice(-500);
+  writeRaw(LOCAL.tombstones, all);
+}
+
+function takeTombstones() {
+  const all = getTombstones();
+  writeRaw(LOCAL.tombstones, {});
+  return all;
+}
+
+function restoreTombstones(all) {
+  const cur = getTombstones();
+  Object.keys(all || {}).forEach(col => {
+    cur[col] = (Array.isArray(cur[col]) ? cur[col] : []).concat(all[col] || []);
+  });
+  writeRaw(LOCAL.tombstones, cur);
+}
+
+function markDirty(col) {
+  if (!col) return;
+  const meta = getSyncMeta();
+  meta.dirty[col] = Date.now();
+  saveSyncMeta({ dirty: meta.dirty });
+  if (dirtyHook) {
+    try { dirtyHook(col); } catch (e) {}
+  }
+}
+
+function clearDirty(cols) {
+  const meta = getSyncMeta();
+  (cols || Object.keys(meta.dirty)).forEach(c => { delete meta.dirty[c]; });
+  saveSyncMeta({ dirty: meta.dirty });
+}
+
+function isDirty(col) {
+  return !!getSyncMeta().dirty[col];
+}
+
+let dirtyHook = null;
+/** sync.js 启动时注册：本地一有改动就安排一次后台推送 */
+function setDirtyHook(fn) { dirtyHook = fn; }
+
+/** 记录被删掉的主键，供下次同步在云端软删 */
+function recordDeletes(key, oldValue, newValue) {
+  const col = SYNCABLE[key];
+  if (!col) return;
+  const isSet = SET_KEYS.indexOf(key) >= 0;
+  const oldList = Array.isArray(oldValue) ? oldValue : [];
+  if (!oldList.length) return;
+
+  let newIds;
+  if (isSet) {
+    newIds = Array.isArray(newValue) ? newValue : [];
+  } else {
+    newIds = (Array.isArray(newValue) ? newValue : []).map(x => x && x.id).filter(Boolean);
+  }
+  const gone = [];
+  oldList.forEach(v => {
+    const id = isSet ? v : (v && v.id);
+    if (id && newIds.indexOf(id) < 0) gone.push(id);
+  });
+  if (gone.length) addTombstones(col, gone);
+}
+
+function write(key, value) {
+  const old = read(key, null);
+  const ok = writeRaw(key, value);
+  if (!ok) return false;
+  const col = SYNCABLE[key];
+  if (col) {
+    recordDeletes(key, old, value);
+    markDirty(col);
+  }
+  return true;
+}
+
+/** 同步回写：静默落盘，不产生新的脏标记 */
+function silentWrite(key, value) {
+  writeRaw(key, value);
+}
+
+/** 供同步引擎使用：把远端某个集合的数据整体写回本机缓存 */
+function applyRemote(col, value) {
+  const key = Object.keys(SYNCABLE).filter(k => SYNCABLE[k] === col)[0];
+  if (!key) return false;
+  if (isDirty(col)) return false; // 本地还有没推上去的改动，等下一轮
+  writeRaw(key, value);
+  return true;
+}
+
+/** 供同步引擎使用：把本机待推送的集合打包 */
+function snapshot(cols) {
+  const out = {};
+  Object.keys(SYNCABLE).forEach(key => {
+    const col = SYNCABLE[key];
+    if (cols && cols.indexOf(col) < 0) return;
+    out[col] = read(key, null);
+  });
+  return out;
+}
+
+// ---------------- 本机偏好与授权（不上云） ----------------
+
+function getLocalPrefs() {
+  return Object.assign({ cloudSync: true }, read(LOCAL.prefs, {}));
+}
+
+function setLocalPref(patch) {
+  const next = Object.assign(getLocalPrefs(), patch);
+  writeRaw(LOCAL.prefs, next);
+  return next;
+}
+
+function getConsent() {
+  const c = read(LOCAL.consent, null);
+  return {
+    version: (c && c.version) || 0,
+    at: (c && c.at) || 0,
+    sensitive: !!(c && c.sensitive),
+    sensitiveAt: (c && c.sensitiveAt) || 0,
+    trackOptIn: !!(c && c.trackOptIn)
+  };
+}
+
+function setConsent(patch) {
+  const next = Object.assign(getConsent(), patch);
+  if (patch && patch.version) next.at = Date.now();
+  // 撤回授权时把时间戳清零，避免残留「曾同意」的假象
+  if (patch && typeof patch.sensitive === 'boolean') {
+    next.sensitiveAt = patch.sensitive ? Date.now() : 0;
+  }
+  writeRaw(LOCAL.consent, next);
+  return next;
 }
 
 function uid(prefix) {
@@ -438,8 +628,18 @@ function dailyItem() {
 
 function itemById(id) { return ITEM_MAP[id] || null; }
 
+/**
+ * 彻底清空：本机缓存 + 云端主库一起删。
+ * 只清本机没有意义——下次同步会把云端数据原样拉回来，用户会以为删除失败。
+ * 云端由 sync.js 收到 wipePending 标记后调用云函数的 wipe 动作完成。
+ */
 function clearAll() {
   Object.keys(KEYS).forEach(k => { try { wx.removeStorageSync(KEYS[k]); } catch (e) {} });
+  writeRaw(LOCAL.tombstones, {});
+  const meta = getSyncMeta();
+  meta.dirty = {};
+  writeRaw(LOCAL.syncMeta, meta);
+  setLocalPref({ wipePending: true });
 }
 
 module.exports = {
@@ -455,5 +655,13 @@ module.exports = {
   getSettings, saveSettings,
   getSearchHistory, pushSearchHistory, clearSearchHistory,
   track, getTrack,
-  getDashboard, dailyItem, itemById, clearAll
+  getDashboard, dailyItem, itemById, clearAll,
+
+  // 同步层对外接口（页面不直接用，由 utils/sync.js 调用）
+  SYNCABLE, LOCAL,
+  setDirtyHook, markDirty, clearDirty, isDirty,
+  getSyncMeta, saveSyncMeta,
+  getTombstones, takeTombstones, restoreTombstones,
+  silentWrite, applyRemote, snapshot,
+  getLocalPrefs, setLocalPref, getConsent, setConsent
 };

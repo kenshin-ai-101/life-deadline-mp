@@ -1,5 +1,5 @@
 .masthead { padding: 20rpx 4rpx 28rpx; }
-.brand { font-size: 46rpx; font-weight: 600; color: #226B60; letter-spacing: .04em; }
+.brand { font-size: 46rpx; font-weight: 600; color: #242E2B; letter-spacing: .04em; }
 .tagline { display: block; margin-top: 10rpx; font-size: 25rpx; color: #6B778C; }
 
 .aid-entry {

@@ -1,8 +1,8 @@
 <view class="page">
-  <view class="card-dark">
-    <text class="t-mono">LOCAL FIRST · NO LOGIN</text>
-    <text class="t-lg t-brand" style="display:block;margin-top:12rpx">人生时限</text>
-    <text class="t-small" style="color:rgba(34,107,96,.82);display:block;margin-top:10rpx">全部数据只存在这台手机，没有账号、没有上传、没有广告。</text>
+  <view class="mine-head">
+    <text class="t-mono">LOCAL FIRST · 可选云端同步</text>
+    <text class="t-lg" style="display:block;margin-top:12rpx">人生时限</text>
+    <text class="t-small" style="display:block;margin-top:10rpx">不用登录、不看通讯录。默认只存在这台手机；开了云同步才会上云，随时可关、可导出、可删。</text>
   </view>
 
   <view class="stat-grid">
@@ -21,6 +21,21 @@
     <text class="t-small" style="display:block;margin-top:10rpx">{{meta.sections}} 节 · {{meta.items}} 条 · {{meta.aidCards}} 张急救卡</text>
     <text class="t-small">生成于 {{meta.builtAt}}</text>
     <text class="t-mute" style="display:block;margin-top:8rpx">{{meta.source}} · 点击复制完整版本信息</text>
+  </view>
+
+  <view class="section-head"><text class="section-title">数据与隐私</text><text class="section-label">{{syncLabel}}</text></view>
+  <view class="card" bindtap="goPrivacy">
+    <view class="row-between">
+      <view>
+        <text class="t-title">{{syncTitle}}</text>
+        <text class="t-small" style="display:block;margin-top:8rpx">{{syncDetail}}</text>
+      </view>
+      <text class="chev">›</text>
+    </view>
+    <view class="sync-bar">
+      <view class="sync-dot sync-{{syncTone}}"></view>
+      <text class="t-mute">{{syncHint}}</text>
+    </view>
   </view>
 
   <view class="section-head"><text class="section-title">功能入口</text></view>
@@ -46,7 +61,7 @@
     </view>
   </view>
 
-  <button class="btn btn-outline" style="margin-top:24rpx;color:#C0392B" bindtap="clearAll">清空本机数据</button>
+  <button class="btn btn-outline" style="margin-top:24rpx;color:#C0392B" bindtap="clearAll">清空全部数据（本机 + 云端）</button>
 
   <view class="disclaimer">
     原书内容采用 CC BY-NC-SA 4.0 许可，本工程为学习演示用的派生实现。

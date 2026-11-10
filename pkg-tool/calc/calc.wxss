@@ -3,6 +3,10 @@
 /* 选择型字段：chip 自带右/下外边距，这里只负责换行 */
 .choice-row { display: flex; flex-wrap: wrap; padding-top: 4rpx; }
 
+/* 未选中 chip：透明底、灰字、浅描边；仅选中后给品牌浅绿底（覆盖全局默认浅绿底） */
+.chip { background: transparent; color: #69736D; border: 1rpx solid #E5E7E0; font-weight: 400; }
+.chip.chip-on { background: #E5EEE7; color: #226B60; border: 2rpx solid #226B60; font-weight: 600; }
+
 /* 结果行：标签左、数值右，口径说明另起一行 */
 .calc-item { border-bottom: 1rpx solid #E5E7E0; padding: 18rpx 0; }
 .calc-item:last-child { border-bottom: none; }

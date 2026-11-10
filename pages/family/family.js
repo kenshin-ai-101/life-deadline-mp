@@ -1,4 +1,5 @@
 const store = require('../../utils/store.js');
+const sync = require('../../utils/sync.js');
 const rules = require('../../data/rules.js');
 
 const FREE_LIMIT = 2;
@@ -15,6 +16,7 @@ Page({
     conditionOptions: rules.conditions.map(c => ({ value: c, selected: false })),
     form: { name: '', age: '', genderIndex: 2, conditions: [] },
     formError: '',
+    consentChecked: false,
     viewState: 'ready'
   },
 
@@ -38,10 +40,18 @@ Page({
     this.setData({
       showForm: true,
       formError: '',
+      // 之前已单独同意过的用户不用每次重复勾选，但仍可取消
+      consentChecked: !!store.getConsent().sensitive,
       form: { name: '', age: '', genderIndex: 2, conditions: [] },
       conditionOptions: rules.conditions.map(c => ({ value: c, selected: false }))
     });
   },
+
+  toggleConsent() {
+    this.setData({ consentChecked: !this.data.consentChecked, formError: '' });
+  },
+
+  goPrivacy() { wx.navigateTo({ url: '/pages/privacy/privacy' }); },
 
   noop() {},
 
@@ -64,14 +74,22 @@ Page({
     this.setData({ 'form.conditions': list, conditionOptions: options, formError: '' });
   },
 
-  submit() {
+  async submit() {
     const f = this.data.form;
     if (!f.name.trim()) { this.setData({ formError: '请填一个称呼，比如「妈妈」' }); return; }
     const age = Number(f.age);
     if (!age || age < 0 || age > 120) { this.setData({ formError: '请填 0 到 120 之间的年龄' }); return; }
+    if (!this.data.consentChecked) {
+      this.setData({ formError: '这张卡含敏感个人信息，请先勾选上面的单独同意' });
+      return;
+    }
     if (this.data.members.length >= MAX_LIMIT) {
       this.setData({ formError: '本地演示版最多 6 位成员' });
       return;
+    }
+    // 先把同意记录推到服务端，再写成员卡：反过来会在云端被拒收（未授权不落库）
+    if (!store.getConsent().sensitive) {
+      await sync.pushConsent({ sensitive: true });
     }
     store.addMember({
       name: f.name,
@@ -88,7 +106,7 @@ Page({
     const id = e.currentTarget.dataset.id;
     wx.showModal({
       title: '删除这张成员卡？',
-      content: '只删除本机记录，不涉及任何健康数据上传。',
+      content: '本机记录立即删除；开启云同步时，云端的这张卡也会一起删掉。',
       confirmColor: '#C0392B',
       success: res => {
         if (res.confirm) { store.removeMember(id); this.refresh(); }

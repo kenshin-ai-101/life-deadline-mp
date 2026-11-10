@@ -22,7 +22,7 @@ button::after { border: none; }
 
 /* 区块标题 */
 .section-head { display: flex; align-items: baseline; justify-content: space-between; margin: 36rpx 0 18rpx; }
-.section-title { font-size: 32rpx; font-weight: 600; color: #226B60; letter-spacing: .02em; }
+.section-title { font-size: 32rpx; font-weight: 600; color: #242E2B; letter-spacing: .02em; }
 .section-label { font-size: 22rpx; color: #8A94A6; letter-spacing: .12em; }
 .section-more { font-size: 24rpx; color: #226B60; }
 
@@ -40,7 +40,7 @@ button::after { border: none; }
 
 /* 文字 */
 .t-title { font-size: 34rpx; font-weight: 600; color: #1F2A37; line-height: 1.45; }
-.t-lg { font-size: 40rpx; font-weight: 600; color: #226B60; line-height: 1.35; }
+.t-lg { font-size: 40rpx; font-weight: 600; color: #242E2B; line-height: 1.35; }
 .t-body { font-size: 27rpx; color: #3C4858; line-height: 1.75; }
 .t-small { font-size: 24rpx; color: #6B778C; line-height: 1.6; }
 .t-mute { font-size: 23rpx; color: #8A94A6; line-height: 1.6; }

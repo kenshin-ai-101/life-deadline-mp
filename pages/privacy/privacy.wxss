@@ -1,0 +1,61 @@
+/* 隐私与数据页 */
+.pv-head { padding: 8rpx 4rpx 4rpx; }
+
+.pv-row { padding: 16rpx 0; border-bottom: 1rpx solid #F0F1EC; }
+.pv-row-last { border-bottom: none; padding-bottom: 4rpx; }
+
+.pv-pill {
+  font-size: 22rpx;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #E5E7E0;
+  color: #69736D;
+  background: #FFFFFF;
+  white-space: nowrap;
+}
+.pv-pill.pv-ok { color: #226B60; background: #E5EEE7; border-color: #C9DED1; }
+.pv-pill.pv-warn { color: #A8661A; background: #FBF3E4; border-color: #EEDCB8; }
+.pv-pill.pv-pending { color: #69736D; background: #F3F2EC; border-color: #E5E7E0; }
+
+.pv-error {
+  margin-top: 12rpx;
+  padding: 14rpx 18rpx;
+  background: #FBF3E4;
+  border: 1rpx solid #EEDCB8;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  color: #A8661A;
+  line-height: 1.6;
+}
+
+.pv-actions { margin-top: 20rpx; }
+.pv-danger { color: #C0392B; border-color: #E7C8C3; }
+
+.pv-stats { display: flex; }
+.pv-stat { flex: 1; display: flex; flex-direction: column; align-items: center; }
+.pv-num { font-size: 40rpx; font-weight: 600; color: #242E2B; line-height: 1.2; }
+
+.pv-policy { display: block; }
+.pv-h {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #242E2B;
+  margin-top: 22rpx;
+  margin-bottom: 6rpx;
+}
+.pv-h:first-child { margin-top: 0; }
+.pv-p {
+  display: block;
+  font-size: 24rpx;
+  color: #5C6773;
+  line-height: 1.75;
+}
+
+.pv-consent {
+  margin-top: 28rpx;
+  padding: 26rpx 28rpx;
+  background: #FFFDF9;
+  border: 1rpx solid #C9DED1;
+  border-radius: 16rpx;
+}

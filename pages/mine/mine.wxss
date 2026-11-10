@@ -1,7 +1,9 @@
 /* 我的 · 页面局部样式，全局样式见 app.wxss */
 
-/* 统计卡：可点击态与角标箭头 */
-.stat-cell { position: relative; }
+/* 顶部无背景版式：与首页 masthead 同构，去掉原浅绿卡片底 */
+.mine-head { padding: 20rpx 4rpx 28rpx; }
+
+/* 统计卡：可点击态与角标箭头 */.stat-cell { position: relative; }
 .stat-cell-hover { background: #E5EEE7; }
 .stat-cell .t-mute { display: block; }
 .stat-arrow {
@@ -9,3 +11,10 @@
   font-size: 30rpx; line-height: 1; color: #226B60; opacity: .7;
 }
 .stat-tip { margin: -6rpx 4rpx 26rpx; }
+
+/* 数据与隐私：同步状态条 */
+.sync-bar { display: flex; align-items: center; margin-top: 18rpx; padding-top: 16rpx; border-top: 1rpx solid #F0F1EC; }
+.sync-dot { width: 12rpx; height: 12rpx; border-radius: 50%; margin-right: 12rpx; background: #B8C2CE; flex: none; }
+.sync-dot.sync-ok { background: #226B60; }
+.sync-dot.sync-warn { background: #E8A33D; }
+.sync-dot.sync-pending { background: #B8C2CE; }

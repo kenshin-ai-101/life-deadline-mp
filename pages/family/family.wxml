@@ -69,6 +69,17 @@
               wx:for="{{conditionOptions}}" wx:key="value" data-value="{{item.value}}" bindtap="toggleCondition">{{item.value}}</text>
       </view>
 
+      <!-- 敏感个人信息：单独同意，不与其他条款捆绑，不默认勾选 -->
+      <view class="consent-box" bindtap="toggleConsent">
+        <view class="consent-check {{consentChecked ? 'on' : ''}}">{{consentChecked ? '✓' : ''}}</view>
+        <view class="consent-text">
+          <text class="t-small">
+            我单独同意保存这张卡里的<text class="consent-strong">姓名、年龄、性别、主要状况</text>，并在开启云同步时上传到云端（敏感个人信息，加密存储）。
+          </text>
+          <text class="consent-link" catchtap="goPrivacy">查看隐私政策与数据流向 ›</text>
+        </view>
+      </view>
+
       <button class="btn btn-primary" style="margin-top:28rpx" bindtap="submit">保存</button>
       <button class="btn btn-ghost" style="margin-top:12rpx" bindtap="closeForm">取消</button>
     </view>

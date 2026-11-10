@@ -37,7 +37,7 @@ page { background: #F6F5F0; }
   background: #FFFDF9;
   border: 1rpx solid #E5E7E0;
   border-radius: 24rpx;
-  color: #226B60;
+  color: #242E2B;
   font-size: 27rpx;
   font-weight: 600;
 }

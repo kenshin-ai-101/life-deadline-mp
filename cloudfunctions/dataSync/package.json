@@ -1,0 +1,10 @@
+{
+  "name": "dataSync",
+  "version": "1.0.0",
+  "description": "人生时限 · 用户数据同步（登录 / 增量拉推 / 导出 / 删除）",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3"
+  }
+}

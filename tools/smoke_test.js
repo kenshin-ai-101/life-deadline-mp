@@ -432,10 +432,59 @@ ok('新增模型输入非法时同样返回 null',
   modelOf('emergency').calc({ cash: '1', need: '1000', cut: '1000', target: '6' }) === null &&
   modelOf('salary').calc({ salary: '0', ratio: '20', deduction: '0' }) === null);
 
+console.log('\n[12c] 同步层：脏标记 / 墓碑 / 本机偏好');
+const syncLib = require('../utils/sync.js');
+
+// 脏标记：写同步集合就标记，写非同步集合不标记
+store.saveSettings({ elderMode: true });
+ok('写设置会标记 settings 脏', store.isDirty('settings'));
+store.clearDirty(['settings']);
+ok('clearDirty 后不再脏', !store.isDirty('settings'));
+store.pushSearchHistory('测试词');
+ok('搜索历史是本机键，不产生脏标记', Object.keys(store.getSyncMeta().dirty).length === 0 ||
+  !store.getSyncMeta().dirty.history, JSON.stringify(store.getSyncMeta().dirty));
+
+// 墓碑：删记录要留痕，否则别的设备会把删掉的数据同步回来
+const evA = store.createEvent('relocation', '2026-11-01', '', '');
+const evB = store.createEvent('rental', '2026-11-01', '', '');
+store.clearDirty(['events', 'tasks']);
+const evCountBefore = store.snapshot(['events']).events.length;
+ok('新建事件后 snapshot 可取到', evCountBefore >= 2 && evA.event.id && evB.event.id);
+store.deleteEvent(evB.event.id);
+const tombs = store.getTombstones();
+ok('删除事件产生 events 墓碑', (tombs.events || []).indexOf(evB.event.id) >= 0,
+  JSON.stringify(tombs.events || []));
+ok('未删除的事件不在墓碑里', (tombs.events || []).indexOf(evA.event.id) < 0);
+ok('事件关联任务也进了墓碑', (store.getTombstones().tasks || []).length > 0);
+
+// 快照与远端回写
+store.clearDirty(['events', 'tasks']);
+const snap = store.snapshot(['events']);
+ok('snapshot 能按集合取数', Array.isArray(snap.events) && snap.events.length === evCountBefore - 1);
+const remoteList = snap.events.slice(0, 1);
+ok('applyRemote 静默写回不产生脏标记',
+  store.applyRemote('events', remoteList) && !store.isDirty('events'));
+
+// 合并策略与云函数 lib 的集合清单一致
+ok('客户端与云端集合清单一致',
+  JSON.stringify(syncLib.ALL_COLLECTIONS.slice().sort()) ===
+  JSON.stringify(Object.keys(require('../cloudfunctions/dataSync/lib/schema.js').COLLECTIONS).sort()));
+ok('收藏是 set 型、设置是 object 型',
+  syncLib.__test.kindOf('favorites') === 'set' && syncLib.__test.kindOf('settings') === 'object');
+
+// 本机偏好与授权不上云
+store.setLocalPref({ cloudSync: false });
+ok('本机偏好可读写', store.getLocalPrefs().cloudSync === false);
+store.setLocalPref({ cloudSync: true });
+const consentNow = store.setConsent({ version: 1, sensitive: true });
+ok('授权记录含版本与敏感同意', consentNow.version === 1 && consentNow.sensitive === true);
+
 console.log('\n[13] 清理');
 store.clearAll();
 ok('清空后无事件', store.getEvents().length === 0);
 ok('清空后无成员', store.getMembers().length === 0);
+ok('清空会挂起一次云端删除', store.getLocalPrefs().wipePending === true);
+store.setLocalPref({ wipePending: false });
 
 console.log('\n通过 %d / 失败 %d\n', pass, fail);
 process.exit(fail ? 1 : 0);

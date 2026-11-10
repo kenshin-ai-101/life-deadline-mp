@@ -1,1 +1,35 @@
 /* 家庭档案 · 页面局部样式，全局样式见 app.wxss */
+
+/* 敏感个人信息单独同意：独立勾选框，不与其他条款捆绑、不默认勾选 */
+.consent-box {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 24rpx;
+  padding: 20rpx 22rpx;
+  background: #FBFBF6;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 12rpx;
+}
+.consent-check {
+  flex: none;
+  width: 34rpx;
+  height: 34rpx;
+  margin-right: 16rpx;
+  margin-top: 2rpx;
+  border: 2rpx solid #C3C8BC;
+  border-radius: 8rpx;
+  background: #FFFFFF;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  line-height: 32rpx;
+  text-align: center;
+}
+.consent-check.on { background: #226B60; border-color: #226B60; }
+.consent-text { flex: 1; min-width: 0; }
+.consent-strong { color: #242E2B; font-weight: 600; }
+.consent-link {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  color: #226B60;
+}

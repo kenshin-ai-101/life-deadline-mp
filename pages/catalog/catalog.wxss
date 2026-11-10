@@ -80,7 +80,7 @@ page { background: #F6F5F0; }
 .book-desc { margin-top: 10rpx; display: flex; flex-direction: column; }
 .book-desc-line { font-size: 23rpx; color: #69736D; line-height: 1.85; }
 .book-continue {
-  color: #226B60;
+  color: #242E2B;
   font-size: 24rpx;
   min-height: 88rpx;
   display: flex;

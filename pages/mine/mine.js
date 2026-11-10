@@ -2,6 +2,16 @@ const store = require('../../utils/store.js');
 const meta = require('../../data/meta.js');
 const mineStats = require('../../utils/mine-stats.js');
 const calcModels = require('../../utils/calc-models.js');
+const sync = require('../../utils/sync.js');
+
+function ago(ts) {
+  if (!ts) return '还没同步过';
+  const d = Date.now() - ts;
+  if (d < 60000) return '刚刚同步';
+  if (d < 3600000) return Math.floor(d / 60000) + ' 分钟前同步';
+  if (d < 86400000) return Math.floor(d / 3600000) + ' 小时前同步';
+  return Math.floor(d / 86400000) + ' 天前同步';
+}
 
 Page({
   data: {
@@ -9,9 +19,14 @@ Page({
     calcCount: calcModels.MODELS.length,
     stats: [],
     trackRows: [],
+    syncLabel: 'DATA',
+    syncTitle: '仅保存在本机',
+    syncDetail: '未开启云同步',
+    syncHint: '换手机或清缓存会丢失',
+    syncTone: 'pending',
     limits: [
       '订阅消息只做站内提醒，正式下发需配置模板与服务端',
-      '跨设备同步、家庭成员绑定、回执上云未接入',
+      '家庭成员绑定目前是单向说明页，没有双向确认流程',
       '拼音检索未实现，当前只支持标题与说人话的中文全文匹配',
       '语音朗读需接入微信同声传译插件',
       '证据类型为机器抽取，尚未完成 50 条人工抽检',
@@ -22,6 +37,14 @@ Page({
       item_view: '查看条目', item_favorite: '收藏条目', item_to_task: '条目转待办',
       search: '搜索', calc_run: '使用算账器', member_create: '新建成员', receipt_add: '存回执'
     }
+  },
+
+  onLoad() {
+    this.unsubscribe = sync.subscribe(() => this.refreshSync());
+  },
+
+  onUnload() {
+    if (this.unsubscribe) this.unsubscribe();
   },
 
   onShow() { this.refresh(); },
@@ -36,7 +59,52 @@ Page({
       .map(k => ({ key: k, label: labels[k], count: track[k].count }))
       .sort((a, b) => b.count - a.count);
     this.setData({ stats: s, trackRows: rows });
+    this.refreshSync();
   },
+
+  refreshSync() {
+    const s = sync.status();
+    let title = '仅保存在本机';
+    let detail = '未开启云同步';
+    let hint = '换手机或清缓存会丢失';
+    let tone = 'pending';
+
+    if (s.mode === 'local') {
+      title = s.envConfigured ? '云同步已关闭' : '仅保存在本机';
+      detail = s.envConfigured ? '你手动关闭了云端同步' : '当前构建未配置云环境';
+      hint = '数据只在这台手机，可随时在隐私页开启';
+    } else if (s.status === 'ok') {
+      title = '已开启云端同步';
+      detail = '本机缓存 + 云端主库';
+      hint = ago(s.lastSyncAt) + (s.pending ? ' · 有 ' + s.pending + ' 类待上传' : '');
+      tone = 'ok';
+    } else if (s.status === 'syncing') {
+      title = '正在同步';
+      detail = '本机缓存 + 云端主库';
+      hint = '首次同步会稍慢一点';
+      tone = 'pending';
+    } else if (s.status === 'offline') {
+      title = '离线中';
+      detail = '数据已存本机，联网后自动补传';
+      hint = s.lastError || '网络不可用';
+      tone = 'warn';
+    } else if (s.status === 'error') {
+      title = '同步失败';
+      detail = '数据仍在本机，不会丢';
+      hint = s.lastError || '稍后可手动重试';
+      tone = 'warn';
+    }
+
+    this.setData({
+      syncLabel: s.mode === 'cloud' && s.status === 'ok' ? 'SYNCED' : 'DATA',
+      syncTitle: title,
+      syncDetail: detail,
+      syncHint: hint,
+      syncTone: tone
+    });
+  },
+
+  goPrivacy() { wx.navigateTo({ url: '/pages/privacy/privacy' }); },
 
   onStatTap(e) {
     const type = e.currentTarget.dataset.type || 'events';
@@ -56,15 +124,26 @@ Page({
   },
 
   clearAll() {
+    const s = sync.status();
+    const cloud = s.mode === 'cloud';
     wx.showModal({
-      title: '清空本机所有数据？',
-      content: '事件、待办、成员、收藏、回执和埋点都会被删除，且不可恢复。内容数据不受影响。',
+      title: cloud ? '清空本机与云端数据？' : '清空本机所有数据？',
+      content: cloud
+        ? '事件、待办、成员、收藏、回执和埋点都会被删除：本机缓存立即清空，云端在下次联网时物理删除，不可恢复。内容数据不受影响。'
+        : '事件、待办、成员、收藏、回执和埋点都会被删除，且不可恢复。内容数据不受影响。',
+      confirmText: '清空',
       confirmColor: '#C0392B',
       success: res => {
         if (!res.confirm) return;
         store.clearAll();
         this.refresh();
-        wx.showToast({ title: '已清空', icon: 'none' });
+        if (cloud) {
+          // 交给同步层去删云端；失败会保留 wipePending 标记，下次自动重试
+          sync.syncNow({ full: true }).catch(() => {});
+          wx.showToast({ title: '本机已清空，云端待同步删除', icon: 'none' });
+        } else {
+          wx.showToast({ title: '已清空', icon: 'none' });
+        }
       }
     });
   },

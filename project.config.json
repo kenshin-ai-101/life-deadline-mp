@@ -9,6 +9,10 @@
       {
         "value": "tools",
         "type": "folder"
+      },
+      {
+        "value": "cloudfunctions",
+        "type": "folder"
       }
     ],
     "include": []
@@ -42,5 +46,6 @@
   "projectname": "life-deadline-mp",
   "miniprogramRoot": "./",
   "simulatorPluginLibVersion": {},
-  "editorSetting": {}
+  "editorSetting": {},
+  "cloudfunctionRoot": "cloudfunctions/"
 }
