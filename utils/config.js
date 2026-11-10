@@ -8,7 +8,7 @@
 
 const config = {
   // ← 唯一需要手填的一行
-  cloudEnv: '',
+  cloudEnv: 'life-deadline-d2g6lakbp51687bd1',
 
   // 数据同步云函数名（部署时保持一致）
   cloudFn: 'dataSync',

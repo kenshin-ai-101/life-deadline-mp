@@ -90,6 +90,20 @@ function errorCode(e) {
 
 // ---------------- 推送 ----------------
 
+/**
+ * 一轮同步结束后应该保留哪些脏标记。
+ * 规则：只有当轮推送过、且服务端没有写失败、且期间没有新改动时才清；
+ * 否则保留，下一轮重试——否则写入失败会被当成成功，数据静默丢失。
+ */
+function nextDirty(dirty, dirtyCols, failedCols, startedAt) {
+  const out = Object.assign({}, dirty || {});
+  (dirtyCols || []).forEach(col => {
+    if ((failedCols || []).indexOf(col) >= 0) return;
+    if (!out[col] || out[col] <= startedAt) delete out[col];
+  });
+  return out;
+}
+
 function buildChanges(cols) {
   const snap = store.snapshot(cols);
   const tombs = store.getTombstones();
@@ -258,11 +272,9 @@ async function runSync(opts) {
   );
 
   // 只有同步开始前就有的脏标记才清；期间新产生的留给下一轮
+  const failedCols = (Array.isArray(res.writeErrors) ? res.writeErrors : []).map(w => w && w.col);
   const meta = store.getSyncMeta();
-  dirtyCols.forEach(col => {
-    if (!meta.dirty[col] || meta.dirty[col] <= startedAt) delete meta.dirty[col];
-  });
-  store.saveSyncMeta({ dirty: meta.dirty });
+  store.saveSyncMeta({ dirty: nextDirty(meta.dirty, dirtyCols, failedCols, startedAt) });
 
   // 服务端拒收（本地刚同意、云端还没收到同意记录这种竞态）：补推同意并重新标脏
   if (Array.isArray(res.blocked) && res.blocked.length) {
@@ -279,11 +291,14 @@ async function runSync(opts) {
 
   await flushTrackIfOptIn();
 
+  const writeFail = Array.isArray(res.writeErrors) && res.writeErrors.length
+    ? (res.writeErrors[0].col + ' 写入失败：' + res.writeErrors[0].first)
+    : '';
   setState({
-    status: 'ok',
+    status: writeFail ? 'error' : 'ok',
     lastSyncAt: res.serverTime || Date.now(),
-    lastError: '',
-    lastErrorCode: '',
+    lastError: writeFail,
+    lastErrorCode: writeFail ? 'WRITE_FAILED' : '',
     pending: Object.keys(store.getSyncMeta().dirty).length,
     hasMore: !!res.hasMore,
     mode: 'cloud'
@@ -353,6 +368,9 @@ async function syncNow(opts) {
 async function bootstrap() {
   if (state.bootstrapped) return status();
   state.bootstrapped = true;
+
+  // 兜底：app.js 启动时也会挂这个钩子，若宿主没挂，这里保证本地改动仍会自动上云
+  store.setDirtyHook(() => scheduleFlush());
 
   if (!cfg.cloudEnabled()) {
     setState({ mode: 'local', status: 'disabled' });
@@ -521,6 +539,7 @@ module.exports = {
     mergeSet: mergeSet,
     mergeObject: mergeObject,
     buildChanges: buildChanges,
+    nextDirty: nextDirty,
     kindOf: kindOf
   }
 };

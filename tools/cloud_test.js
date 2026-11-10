@@ -208,6 +208,19 @@ const cBack = sync.__test.buildChanges(['members']);
 ok('撤回后再次停止上传', cBack.members === undefined);
 ok('撤回后本机成员卡仍在（不替用户删本地数据）', store.getMembers().length === 1);
 
+// ---- 写失败不能静默丢数据（线上踩过：云函数 set() 的 data 带 _id 导致整批写入失败，
+//      客户端却把脏标记清了，本地数据再也没上云）----
+const T0 = 1000;
+const nd1 = sync.__test.nextDirty({ events: 900, tasks: 900 }, ['events', 'tasks'], ['events'], T0 + 100);
+ok('写失败的集合保留脏标记（下轮重试）', !!nd1.events, JSON.stringify(nd1));
+ok('写成功的集合清掉脏标记', nd1.tasks === undefined, JSON.stringify(nd1));
+
+const nd2 = sync.__test.nextDirty({ events: 1200 }, ['events'], [], T0);
+ok('同步期间的新改动不被清掉', nd2.events === 1200, JSON.stringify(nd2));
+
+const nd3 = sync.__test.nextDirty({ events: 800 }, ['events'], [], T0);
+ok('同步前的旧脏标记正常清除', nd3.events === undefined, JSON.stringify(nd3));
+
 console.log('\n通过 ' + pass + ' / 失败 ' + fail);
 if (fail) {
   console.log('\n失败用例：');

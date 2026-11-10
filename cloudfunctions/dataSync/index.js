@@ -98,30 +98,38 @@ async function pullCollection(col, openid, since, limit) {
   return out;
 }
 
-/** 写文档：last-write-wins，updatedAt 一律用服务端时间，避免多端时钟偏差 */
+/** 写文档：last-write-wins，updatedAt 一律用服务端时间，避免多端时钟偏差
+ *  注意 set() 的 data 里不能再带 _id（文档 id 由 doc() 决定），否则整批写入失败。
+ *  失败必须回传，否则客户端会误以为同步成功而清掉脏标记，造成静默丢数据。 */
 async function writeDocs(col, docs, now) {
-  if (!docs.length) return 0;
+  if (!docs.length) return { written: 0, errors: [] };
   const physical = schema.physicalOf(col);
   let written = 0;
+  const errors = [];
   const chunk = 20;
   for (let i = 0; i < docs.length; i += chunk) {
     const part = docs.slice(i, i + chunk);
     await Promise.all(
-      part.map(d =>
-        db
+      part.map(d => {
+        const data = Object.assign({}, d, {
+          updatedAt: now,
+          updatedLocalAt: d.updatedLocalAt || 0
+        });
+        delete data._id;
+        return db
           .collection(physical)
           .doc(d._id)
-          .set({
-            data: Object.assign({}, d, { updatedAt: now, updatedLocalAt: d.updatedLocalAt || 0 })
-          })
+          .set({ data: data })
           .then(() => { written += 1; })
           .catch(err => {
-            console.error('write fail', physical, d._id, err && err.message);
-          })
-      )
+            const msg = String((err && (err.errMsg || err.message)) || err);
+            console.error('write fail', physical, d._id, msg);
+            errors.push(msg);
+          });
+      })
     );
   }
-  return written;
+  return { written: written, errors: errors };
 }
 
 async function handleSync(event, openid) {
@@ -139,6 +147,7 @@ async function handleSync(event, openid) {
   let applied = 0;
   // 服务端兜底：客户端没权限推的集合，这里一律拒收并回传，由客户端重新标脏
   const blocked = [];
+  const writeErrors = [];
   const cols = Object.keys(changes).filter(schema.isCollection);
   for (let i = 0; i < cols.length; i += 1) {
     const col = cols[i];
@@ -146,7 +155,11 @@ async function handleSync(event, openid) {
     const docs = shape.normalizeChanges(col, changes[col], openid, key).map(d =>
       Object.assign({}, d, { updatedLocalAt: Number((changes[col] || {}).localAt) || 0 })
     );
-    applied += await writeDocs(col, docs, now);
+    const r = await writeDocs(col, docs, now);
+    applied += r.written;
+    if (r.errors.length) {
+      writeErrors.push({ col: col, count: r.errors.length, first: r.errors[0].slice(0, 200) });
+    }
   }
 
   // 2) 再把 since 之后的变更拉回给客户端
@@ -169,6 +182,7 @@ async function handleSync(event, openid) {
   return {
     ok: true,
     applied: applied,
+    writeErrors: writeErrors,
     collections: collections,
     blocked: blocked,
     hasMore: hasMore,
