@@ -9,12 +9,12 @@
       <view class="row" style="margin-top:16rpx">
         <view class="badge-box">{{selected.badge}}</view>
         <view class="grow">
-          <text class="t-lg t-white">{{selected.name}}</text>
-          <text class="t-small" style="color:rgba(255,255,255,.75);display:block;margin-top:6rpx">{{selected.desc}}</text>
+          <text class="t-lg t-brand">{{selected.name}}</text>
+          <text class="t-small" style="color:rgba(34,107,96,.78);display:block;margin-top:6rpx">{{selected.desc}}</text>
         </view>
       </view>
-      <view class="hairline" style="background:rgba(255,255,255,.2)"></view>
-      <text class="t-small" style="color:rgba(255,255,255,.8)">{{selected.sectionsText}} · {{selected.previewText}}</text>
+      <view class="hairline" style="background:rgba(34,107,96,.2)"></view>
+      <text class="t-small" style="color:rgba(34,107,96,.82)">{{selected.sectionsText}} · {{selected.previewText}}</text>
     </view>
 
     <view class="section-head"><text class="section-title">只填三样</text><text class="section-label">约 10 秒</text></view>

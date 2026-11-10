@@ -1,5 +1,5 @@
 .masthead { padding: 20rpx 4rpx 28rpx; }
-.brand { font-size: 46rpx; font-weight: 600; color: #1F3A5F; letter-spacing: .04em; }
+.brand { font-size: 46rpx; font-weight: 600; color: #226B60; letter-spacing: .04em; }
 .tagline { display: block; margin-top: 10rpx; font-size: 25rpx; color: #6B778C; }
 
 .aid-entry {
@@ -23,7 +23,7 @@
 .event-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 48rpx; height: 48rpx; border-radius: 10rpx;
-  background: #EDF3FB; color: #1F3A5F; font-size: 25rpx; font-weight: 600;
+  background: #E5EEE7; color: #226B60; font-size: 25rpx; font-weight: 600;
   margin-bottom: 14rpx;
 }
 .event-name { display: block; font-size: 29rpx; font-weight: 600; color: #1F2A37; }

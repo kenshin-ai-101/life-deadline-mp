@@ -9,8 +9,8 @@
   color: #6B778C;
 }
 .bf-chip.on {
-  background: #EDF3FB;
-  border-color: #4A6FA5;
-  color: #1F3A5F;
+  background: #E5EEE7;
+  border-color: #226B60;
+  color: #226B60;
   font-weight: 600;
 }

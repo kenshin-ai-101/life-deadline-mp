@@ -6,7 +6,7 @@
   <view class="card">
     <view class="row-between">
       <text class="t-title">只看争议</text>
-      <switch checked="{{disputedOnly}}" bindchange="toggleDisputed" color="#1F3A5F" />
+      <switch checked="{{disputedOnly}}" bindchange="toggleDisputed" color="#226B60" />
     </view>
     <text class="t-small">展示正反证据并存的条目；进入详情会成对呈现正反两方。</text>
   </view>

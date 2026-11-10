@@ -1,8 +1,8 @@
 <view class="page">
   <view class="card-dark">
     <text class="t-mono">LOCAL FIRST · NO LOGIN</text>
-    <text class="t-lg t-white" style="display:block;margin-top:12rpx">人生时限</text>
-    <text class="t-small" style="color:rgba(255,255,255,.8);display:block;margin-top:10rpx">全部数据只存在这台手机，没有账号、没有上传、没有广告。</text>
+    <text class="t-lg t-brand" style="display:block;margin-top:12rpx">人生时限</text>
+    <text class="t-small" style="color:rgba(34,107,96,.82);display:block;margin-top:10rpx">全部数据只存在这台手机，没有账号、没有上传、没有广告。</text>
   </view>
 
   <view class="stat-grid">

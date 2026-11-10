@@ -9,8 +9,8 @@ OUT = os.path.join(BASE, 'images')
 os.makedirs(OUT, exist_ok=True)
 S = 4
 W = 81 * S
-OFF = '#8A94A6'
-ON = '#1F3A5F'
+OFF = '#727B75'
+ON = '#226B60'
 LW = 5 * S
 
 

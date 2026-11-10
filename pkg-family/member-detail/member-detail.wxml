@@ -4,10 +4,10 @@
   <block wx:elif="{{viewState === 'ready'}}">
     <view class="card-dark">
       <text class="t-mono">MEMBER CARD · 仅存本机</text>
-      <text class="t-lg t-white" style="display:block;margin-top:12rpx">{{member.name}}</text>
-      <text class="t-small" style="color:rgba(255,255,255,.8);display:block;margin-top:8rpx">{{member.age}} 岁 · {{member.gender || '性别未填'}} · {{conditionText}}</text>
+      <text class="t-lg t-brand" style="display:block;margin-top:12rpx">{{member.name}}</text>
+      <text class="t-small" style="color:rgba(34,107,96,.82);display:block;margin-top:8rpx">{{member.age}} 岁 · {{member.gender || '性别未填'}} · {{conditionText}}</text>
       <view class="tag-line" style="margin-top:16rpx">
-        <text class="tag tag-outline" style="color:#fff;border-color:rgba(255,255,255,.4)" wx:for="{{matchedLabels}}" wx:key="*this">{{item}}</text>
+        <text class="tag tag-outline" style="color:#226B60;border-color:rgba(34,107,96,.38)" wx:for="{{matchedLabels}}" wx:key="*this">{{item}}</text>
       </view>
     </view>
 
