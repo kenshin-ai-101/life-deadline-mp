@@ -13,7 +13,9 @@ const KEYS = {
   receipts: 'ld_receipts',
   settings: 'ld_settings',
   history: 'ld_search_history',
-  track: 'ld_track'
+  track: 'ld_track',
+  chapterFavs: 'ld_chapter_favs',
+  chapterLikes: 'ld_chapter_likes'
 };
 
 // 两本书的条目共用一张表：id 前缀 rq 为人情世故指南，其余为高性价比人生
@@ -286,6 +288,40 @@ function toggleFavorite(itemId) {
 }
 function isFavorite(itemId) { return getFavorites().indexOf(itemId) >= 0; }
 
+// ---------------- 章节收藏 / 点赞（底部操作栏，本地存储） ----------------
+
+function chapterKey(bookId, sec) { return String(bookId) + ':' + String(sec); }
+
+function getChapterFavorites() {
+  const v = read(KEYS.chapterFavs, []);
+  return Array.isArray(v) ? v : [];
+}
+function isChapterFavorite(bookId, sec) { return getChapterFavorites().indexOf(chapterKey(bookId, sec)) >= 0; }
+function toggleChapterFavorite(bookId, sec) {
+  const key = chapterKey(bookId, sec);
+  let list = getChapterFavorites();
+  const had = list.indexOf(key) >= 0;
+  list = had ? list.filter(x => x !== key) : [key].concat(list);
+  write(KEYS.chapterFavs, list);
+  track(had ? 'chapter_unfavorite' : 'chapter_favorite', { key: key });
+  return !had;
+}
+
+function isChapterLiked(bookId, sec) {
+  const v = read(KEYS.chapterLikes, []);
+  return Array.isArray(v) && v.indexOf(chapterKey(bookId, sec)) >= 0;
+}
+function toggleChapterLike(bookId, sec) {
+  const key = chapterKey(bookId, sec);
+  let list = read(KEYS.chapterLikes, []);
+  if (!Array.isArray(list)) list = [];
+  const had = list.indexOf(key) >= 0;
+  list = had ? list.filter(x => x !== key) : [key].concat(list);
+  write(KEYS.chapterLikes, list);
+  track(had ? 'chapter_unlike' : 'chapter_like', { key: key });
+  return !had;
+}
+
 function getMembers() { const v = read(KEYS.members, []); return Array.isArray(v) ? v : []; }
 function saveMembers(list) { return write(KEYS.members, list); }
 function addMember(payload) {
@@ -413,6 +449,7 @@ module.exports = {
   archiveEvent, deleteEvent, decorateTask, getOpenTasks,
   addItemTask, isItemInTask,
   getFavorites, toggleFavorite, isFavorite,
+  isChapterFavorite, toggleChapterFavorite, isChapterLiked, toggleChapterLike,
   getMembers, saveMembers, addMember, removeMember,
   getReceipts, addReceipt,
   getSettings, saveSettings,

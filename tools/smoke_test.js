@@ -287,7 +287,36 @@ ok('所有全量链接都能在编号列表里找到', covered === Object.keys(h
 ok('复制文本保留编号', srcUtil.buildRefs(hltbDetails['01-1']).refs
   .map(r => '[' + r.no + '] ' + r.text).join('\n').indexOf('[1] ') === 0);
 
-console.log('\n[11] 清理');
+console.log('\n[11] 条目标签与章节收藏');
+const chipA = fmt.chipModel({ grade: 'A', cost: { lens: '死亡率', money: '0', time: '少', will: '否' } });
+ok('证据等级文案', chipA.grade === '证据 A 级');
+ok('口径换算成「换什么」', chipA.lensText === '换寿命');
+ok('金钱/时间/自由口径', fmt.chipModel({ cost: { lens: '金钱' } }).lensText === '换钱' &&
+  fmt.chipModel({ cost: { lens: '时间' } }).lensText === '换时间精力' &&
+  fmt.chipModel({ cost: { lens: '自由' } }).lensText === '换人身自由');
+ok('人情世故口径保持原词', fmt.chipModel({ cost: { lens: '关系' } }).lensText === '关系' &&
+  fmt.chipModel({ cost: { lens: '体面' } }).lensText === '体面' &&
+  fmt.chipModel({ cost: { lens: '自保' } }).lensText === '自保');
+const chipC = fmt.chipModel({ cost: { money: '多', time: '中', will: '些' } });
+ok('成本三维文案', JSON.stringify(chipC.costTags) ===
+  JSON.stringify(['花不少钱', '花几小时', '要一点毅力']));
+ok('争议标记', fmt.chipModel({ disputed: true }).dispute === true && fmt.chipModel({}).dispute === false);
+ok('未知口径原样透出', fmt.chipModel({ cost: { lens: '未知口径' } }).lensText === '未知口径');
+ok('两本书每条至少 4 个标签', items.concat(socialItems).every(it => {
+  const c = fmt.chipModel(it);
+  return (c.grade ? 1 : 0) + (c.lensText ? 1 : 0) + c.costTags.length >= 4;
+}));
+store.clearAll();
+ok('章节收藏 / 点赞初始为否', !store.isChapterFavorite('hltb', 1) && !store.isChapterLiked('hltb', 1));
+ok('章节收藏可切换', store.toggleChapterFavorite('hltb', 1) === true &&
+  store.isChapterFavorite('hltb', 1) && !store.isChapterFavorite('social', 1));
+ok('章节取消收藏', store.toggleChapterFavorite('hltb', 1) === false && !store.isChapterFavorite('hltb', 1));
+ok('章节点赞两本书互不影响', store.toggleChapterLike('social', 2) === true &&
+  store.isChapterLiked('social', 2) && !store.isChapterLiked('hltb', 2));
+ok('clearAll 连章节收藏一起清', (store.clearAll(),
+  !store.isChapterFavorite('social', 2) && !store.isChapterLiked('social', 2)));
+
+console.log('\n[12] 清理');
 store.clearAll();
 ok('清空后无事件', store.getEvents().length === 0);
 ok('清空后无成员', store.getMembers().length === 0);

@@ -15,6 +15,37 @@ const COST_LABELS = [
 ];
 
 const GRADE_LABEL = { A: 'A 级 · 证据较硬', B: 'B 级', C: 'C 级' };
+
+// 条目标签文案与《人生指南库》阅读页同一套映射：
+// 主书的「口径」换算成「换什么」；人情世故的口径本身就是可读词，保持原样。
+const LENS_TEXT = {
+  '死亡率': '换寿命',
+  '金钱': '换钱',
+  '时间': '换时间精力',
+  '自由': '换人身自由',
+  '关系': '关系',
+  '体面': '体面',
+  '自保': '自保'
+};
+// 成本三维的展示文案（对应上游标签 钱/时间/毅力）
+const COST_TEXT = {
+  money: { '0': '不花钱', '少': '花少量钱', '多': '花不少钱' },
+  time: { '少': '顺手', '中': '花几小时', '多': '每天占时间' },
+  will: { '否': '不用毅力', '些': '要一点毅力', '是': '要很多毅力' }
+};
+
+/** 章节页与详情页共用的条目标签：证据等级（主）+ 口径 + 成本三维 + 争议 */
+function chipModel(item) {
+  const it = item || {};
+  const c = it.cost || {};
+  return {
+    grade: it.grade ? '证据 ' + it.grade + ' 级' : '',
+    lensText: LENS_TEXT[c.lens] || c.lens || '',
+    costTags: [COST_TEXT.money[c.money], COST_TEXT.time[c.time], COST_TEXT.will[c.will]]
+      .filter(Boolean),
+    dispute: !!it.disputed
+  };
+}
 const EV_LABEL = {
   '随机对照试验': '随机对照试验',
   '观察性研究': '观察性研究',
@@ -177,6 +208,7 @@ function elderItemView(it) {
 
 module.exports = {
   COST_LABELS, costBadges, gradeText, evText, sectionTitle,
+  LENS_TEXT, COST_TEXT, chipModel,
   bookIdOf, bookTitleOf,
   search, facetOptions, hotWords, highlightHtml,
   buildMemberLists, elderItemView

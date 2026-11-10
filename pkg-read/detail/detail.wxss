@@ -1,5 +1,4 @@
-/* 条目详情 · 「怎么说」话术块（人情世故指南特有） */
-.tip-block {
+/* 条目详情 · 「怎么说」话术块（人情世故指南特有） */.tip-block {
   background: #E5EEE7;
   border-left: 6rpx solid #226B60;
   border-radius: 12rpx;
@@ -9,7 +8,7 @@
 .tip-block .plain-kicker { color: #226B60; margin-bottom: 10rpx; }
 .tip-block .plain-text { color: #1F2A37; font-size: 28rpx; line-height: 1.8; }
 
-/* 来源：多条时用 [1] [2] [3] 逐条区分 */
+/* 来源：统一「来源 · N 条」，[1] [2] [3] 逐条编号（单条也编号） */
 .src-head { display: flex; align-items: baseline; }
 .src-count { font-size: 24rpx; color: #727B75; }
 .ref-row {
@@ -17,11 +16,21 @@
   padding: 18rpx 0 4rpx; margin-top: 16rpx;
   border-top: 1rpx solid #E5E7E0;
 }
-.ref-idx { flex: 0 0 auto; width: 62rpx; font-size: 23rpx; color: #226B60; line-height: 1.75; }
+.ref-idx {
+  flex: 0 0 auto; white-space: nowrap; min-width: 56rpx;
+  font-size: 23rpx; color: #226B60; line-height: 1.75;
+}
 .ref-txt {
   flex: 1; min-width: 0;
   font-size: 24rpx; color: #3C4858; line-height: 1.75; word-break: break-all;
 }
-.ref-txt.solo { font-size: 26rpx; }
 .ref-url { color: #226B60; word-break: break-all; }
 .ref-extra { display: block; font-size: 20rpx; color: #8A94A6; margin-top: 6rpx; }
+
+/* 标签行：与章节页同一套（主绿实底 / 次灰描边，防收缩截断） */
+.tag-line .tag {
+  flex: none; white-space: nowrap;
+  font-size: 21rpx; padding: 6rpx 18rpx; border-radius: 12rpx;
+  background: #EFEEE7; color: #69736D; border: 1rpx solid #E5E7E0;
+}
+.tag-line .tag-main { background: #226B60; color: #FFFFFF; font-weight: 700; border: 0; }

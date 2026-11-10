@@ -10,11 +10,10 @@
     <text class="t-mono">{{bookTitle}} · {{section}} · NO. {{item.id}}</text>
     <text class="detail-title">{{item.t}}</text>
 
-    <!-- 成本标签徽章 -->
+    <!-- 标签：证据等级（主）+ 换什么 + 成本三维 + 争议，文案与指南库阅读页同一套 -->
     <view class="tag-line">
-      <text class="tag" wx:for="{{badges}}" wx:key="key">{{item.label}}={{item.value}}</text>
-      <text class="tag tag-outline">{{grade}}</text>
-      <text class="tag tag-warn" wx:if="{{item.disputed}}">有争议</text>
+      <text class="tag tag-main" wx:if="{{chipGrade}}">{{chipGrade}}</text>
+      <text class="tag" wx:for="{{chipTags}}" wx:key="*this">{{item}}</text>
     </view>
 
     <!-- 说人话：默认展开，视觉权重最高 -->
@@ -74,19 +73,19 @@
       </block>
     </view>
 
-    <!-- 来源：多条时按 [1] [2] [3] 区分；默认折叠，链接可复制 -->
+    <!-- 来源：统一「来源 · N 条」，展开后按 [1] [2] [3] 逐条编号（单条也编号）；默认折叠，链接可复制 -->
     <view class="source-panel">
       <view class="row-between" bindtap="toggleSource">
         <view class="src-head">
           <text class="t-title">来源</text>
-          <text class="src-count" wx:if="{{sourceCount > 1}}"> · {{sourceCount}} 条</text>
+          <text class="src-count" wx:if="{{sourceCount > 0}}"> · {{sourceCount}} 条</text>
         </view>
         <text class="section-more">{{sourceOpen ? '收起' : '展开'}} ›</text>
       </view>
       <block wx:if="{{sourceOpen}}">
         <view class="ref-row" wx:for="{{sourceRefs}}" wx:key="no">
-          <text class="ref-idx" wx:if="{{sourceMulti}}">[{{item.no}}]</text>
-          <view class="ref-txt {{sourceMulti ? '' : 'solo'}}">
+          <text class="ref-idx">[{{item.no}}]</text>
+          <view class="ref-txt">
             <block wx:for="{{item.runs}}" wx:for-item="run" wx:key="index">
               <text wx:if="{{run.url}}" class="ref-url" data-url="{{run.t}}" bindtap="copyLink">{{run.t}}</text>
               <text wx:else>{{run.t}}</text>

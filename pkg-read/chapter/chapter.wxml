@@ -22,10 +22,11 @@
       <view class="s-plain" wx:if="{{item.plain}}">{{item.plain}}</view>
       <view class="s-tip" wx:if="{{item.tip}}"><text class="s-tip-k">怎么说</text>{{item.tip}}</view>
 
-      <view class="s-chips">
+      <view class="s-chips" wx:if="{{item.grade || item.lensText || item.costTags.length || item.dispute}}">
         <text class="s-chip" wx:if="{{item.grade}}">{{item.grade}}</text>
-        <text class="s-chip dim" wx:if="{{item.lens}}">{{item.lens}}</text>
-        <text class="s-chip warn" wx:if="{{item.disputed}}">有争议</text>
+        <text class="s-chip dim" wx:if="{{item.lensText}}">{{item.lensText}}</text>
+        <text class="s-chip dim" wx:for="{{item.costTags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+        <text class="s-chip dim" wx:if="{{item.dispute}}">争议</text>
       </view>
 
       <view class="s-folds">
@@ -59,8 +60,19 @@
         </block>
       </view>
 
-      <view class="s-actions">
+      <!-- 条目操作：查看详情 / 收藏本条 / 分享本条（与指南库一致，右对齐） -->
+      <view class="s-acts">
         <text class="s-link" data-id="{{item.id}}" catchtap="onItemTap">查看条目详情 ›</text>
+        <view class="s-acts-right">
+          <view class="s-act" hover-class="s-act-hover" catchtap="onStepFavorite" data-idx="{{index}}">
+            <text class="s-act-ico {{item.fav ? 'on' : ''}}">{{item.fav ? '★' : '☆'}}</text>
+            <text>{{item.fav ? '已收藏' : '收藏'}}</text>
+          </view>
+          <button class="s-act s-share-btn" open-type="share" data-id="{{item.id}}" hover-class="s-act-hover">
+            <text class="s-act-ico">↗</text>
+            <text>分享</text>
+          </button>
+        </view>
       </view>
     </view>
 
@@ -72,5 +84,27 @@
       <view class="rd-nav-btn {{prevSec ? '' : 'off'}}" data-sec="{{prevSec}}" bindtap="onChapterNav">‹ 上一章</view>
       <view class="rd-nav-btn {{nextSec ? '' : 'off'}}" data-sec="{{nextSec}}" bindtap="onChapterNav">下一章 ›</view>
     </view>
+
+    <!-- 底部操作栏：收藏 / 点赞 / 转发好友 / 朋友圈（与指南库一致） -->
+    <view class="rd-footer">
+      <view class="rb" data-act="fav" bindtap="onChapterFavorite" hover-class="rb-hover">
+        <text class="rb-ico {{isChapterFav ? 'hot' : ''}}">{{isChapterFav ? '★' : '☆'}}</text>
+        <text class="rb-t {{isChapterFav ? 'hot' : ''}}">{{isChapterFav ? '已收藏' : '收藏'}}</text>
+      </view>
+      <view class="rb" data-act="like" bindtap="onLike" hover-class="rb-hover">
+        <text class="rb-ico {{isLiked ? 'hot' : ''}}">{{isLiked ? '♥' : '♡'}}</text>
+        <text class="rb-t">点赞</text>
+      </view>
+      <button class="rb" open-type="share" hover-class="rb-hover">
+        <text class="rb-ico">↗</text>
+        <text class="rb-t">转发好友</text>
+      </button>
+      <view class="rb" data-act="timeline" bindtap="onTimelineGuide" hover-class="rb-hover">
+        <text class="rb-ico">◎</text>
+        <text class="rb-t">朋友圈</text>
+      </view>
+    </view>
+
+    <view class="like-burst" wx:if="{{burstShow}}"><text class="like-heart">♥</text></view>
   </block>
 </view>

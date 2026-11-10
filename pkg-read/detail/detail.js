@@ -58,6 +58,7 @@ Page({
     const detailMap = bookId === 'social' ? socialDetails : details;
     const d = detailMap[id];
     const refs = sources.buildRefs(d);
+    const chips = fmt.chipModel(it);
     if (!it) {
       this.setData({ viewState: 'missing' });
       return;
@@ -69,7 +70,9 @@ Page({
       viewState: 'ready',
       item: it,
       detail: d || null,
-      badges: fmt.costBadges(it),
+      chipGrade: chips.grade,
+      chipTags: [chips.lensText].concat(chips.costTags).concat(chips.dispute ? ['争议'] : []).filter(Boolean),
+      badges: [],
       grade: fmt.gradeText(it.grade),
       evType: fmt.evText(it.ev),
       disclaimer: disclaimer ? disclaimer.text : '',
@@ -139,7 +142,7 @@ Page({
       wx.showToast({ title: '这条没有来源', icon: 'none' });
       return;
     }
-    const text = refs.map(r => (this.data.sourceMulti ? '[' + r.no + '] ' : '') + r.text).join('\n');
+    const text = refs.map(r => '[' + r.no + '] ' + r.text).join('\n');
     wx.setClipboardData({ data: text });
     wx.showToast({ title: '来源已复制（带编号）', icon: 'none' });
   },
