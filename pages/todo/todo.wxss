@@ -3,11 +3,11 @@
 /* 分组视图切换 */
 .view-switch { display: flex; align-items: center; justify-content: space-between; margin: 0 4rpx 18rpx; }
 .view-switch-hint { font-size: 23rpx; color: #8A94A6; }
-.view-switch-btn { font-size: 24rpx; color: #4A6FA5; background: #FFFFFF; border: 1rpx solid #DCE6F3; border-radius: 999rpx; padding: 8rpx 22rpx; }
+.view-switch-btn { font-size: 24rpx; color: #4A6FA5; background: #FFFDF9; border: 1rpx solid #E5E7E0; border-radius: 999rpx; padding: 8rpx 22rpx; }
 
 /* 按事件分组 */
-.group { background: #FFFFFF; border: 1rpx solid #E3E8EF; border-radius: 16rpx; margin-bottom: 24rpx; overflow: hidden; }
-.group-head { display: flex; align-items: flex-start; padding: 24rpx 22rpx 20rpx; background: #F7F9FC; }
+.group { background: #FFFDF9; border: 1rpx solid #E5E7E0; border-radius: 16rpx; margin-bottom: 24rpx; overflow: hidden; }
+.group-head { display: flex; align-items: flex-start; padding: 24rpx 22rpx 20rpx; background: #EFEEE7; }
 .group-badge {
   width: 64rpx; height: 64rpx; flex: 0 0 64rpx; box-sizing: border-box;
   border-radius: 14rpx; background: #1F3A5F; color: #FFFFFF;
@@ -21,6 +21,6 @@
 .group-meta { display: flex; flex-wrap: wrap; margin-top: 8rpx; }
 .group-fold { font-size: 23rpx; color: #4A6FA5; margin-left: 12rpx; flex: 0 0 auto; padding-top: 6rpx; }
 .group-body { padding: 20rpx 20rpx 4rpx; }
-.group-body .todo-card { margin-bottom: 16rpx; border-left: 6rpx solid #E3E8EF; }
+.group-body .todo-card { margin-bottom: 16rpx; border-left: 6rpx solid #E5E7E0; }
 .group-body .todo-card.is-overdue { border-left-color: #C0392B; }
-.group-foot { padding: 18rpx 22rpx; border-top: 1rpx solid #EDF1F5; text-align: right; }
+.group-foot { padding: 18rpx 22rpx; border-top: 1rpx solid #E5E7E0; text-align: right; }

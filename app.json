@@ -41,17 +41,17 @@
   },
   "window": {
     "navigationBarTitleText": "人生时限",
-    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarBackgroundColor": "#F6F5F0",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#F4F6F9",
-    "backgroundTextStyle": "light",
+    "backgroundColor": "#F6F5F0",
+    "backgroundTextStyle": "dark",
     "enablePullDownRefresh": false
   },
   "tabBar": {
-    "color": "#8A94A6",
+    "color": "#727B75",
     "selectedColor": "#1F3A5F",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
+    "backgroundColor": "#FFFDF9",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",

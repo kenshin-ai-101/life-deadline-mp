@@ -16,7 +16,7 @@
 .event-grid { display: flex; flex-wrap: wrap; }
 .event-cell {
   width: calc(50% - 10rpx); margin-bottom: 20rpx;
-  background: #FFFFFF; border: 1rpx solid #E3E8EF; border-radius: 14rpx;
+  background: #FFFDF9; border: 1rpx solid #E5E7E0; border-radius: 14rpx;
   padding: 22rpx 20rpx; box-sizing: border-box;
 }
 .event-cell:nth-child(odd) { margin-right: 20rpx; }
