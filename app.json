@@ -27,10 +27,14 @@
     {
       "root": "pkg-tool",
       "pages": ["calc/calc"]
+    },
+    {
+      "root": "pkg-insight",
+      "pages": ["wizard/wizard", "result/result"]
     }
   ],
   "preloadRule": {
-    "pages/index/index": { "network": "all", "packages": ["pkg-aid"] },
+    "pages/index/index": { "network": "all", "packages": ["pkg-aid", "pkg-insight"] },
     "pages/catalog/catalog": { "network": "all", "packages": ["pkg-read"] },
     "pages/search/search": { "network": "all", "packages": ["pkg-read"] },
     "pages/family/family": { "network": "all", "packages": ["pkg-family"] }

@@ -2,6 +2,9 @@ const store = require('../../utils/store.js');
 const rules = require('../../data/rules.js');
 const fmt = require('../../utils/format.js');
 const meta = require('../../data/meta.js');
+const updates = require('../../utils/updates.js');
+const lib = require('../../utils/library.js');
+const profile = require('../../utils/profile.js');
 
 const app = getApp();
 
@@ -14,6 +17,15 @@ Page({
     dash: { activeEvents: [], weekCount: 0, overdueCount: 0, openCount: 0, upcoming: [] },
     daily: null,
     dailySection: '',
+    updatesAll: [],
+    shownUpdates: [],
+    updatesCount: 0,
+    updatesTitle: '最近更新',
+    updatesExpanded: false,
+    heroCount: 0,
+    heroSteps: 0,
+    hasProfile: false,
+    profileTopics: '',
     meta: meta,
     contentUpdated: false,
     notifyHint: ''
@@ -45,12 +57,29 @@ Page({
         notifyHint = '有 ' + dash.weekCount + ' 件事在 7 天内到期';
       }
 
+      // 「最近更新」：章节级 updatedAt 按天聚合，口径与《人生指南库》为我推荐 tab 一致
+      const recent = updates.getRecentUpdates();
+      // 「今天想改善什么」：可推荐书籍数 + 已保存画像（与指南库 reco.js render 同源）
+      const books = lib.getBooks().filter(b => b.capabilities && b.capabilities.matchable);
+      const p = profile.getProfileV2();
+      const topicNames = p
+        ? (p.topicIds || []).map(id => (lib.getTopic(id) || {}).name).filter(Boolean)
+        : [];
+
       this.setData({
         viewState: 'ready',
         eventGrid: grid,
         dash: Object.assign({}, dash, { activeEvents: activeEvents }),
         daily: daily,
         dailySection: fmt.sectionTitle(daily.s),
+        updatesAll: recent.updates,
+        shownUpdates: updates.shownUpdates(recent.updates, this.data.updatesExpanded),
+        updatesCount: recent.count,
+        updatesTitle: recent.title,
+        heroCount: books.length,
+        heroSteps: books.reduce((n, b) => n + ((b.stats || {}).steps || 0), 0),
+        hasProfile: topicNames.length > 0,
+        profileTopics: topicNames.slice(0, 2).join('、'),
         contentUpdated: !!app.globalData.contentUpdated,
         notifyHint: notifyHint
       });
@@ -88,6 +117,24 @@ Page({
     if (this.data.daily) {
       wx.navigateTo({ url: '/pkg-read/detail/detail?id=' + this.data.daily.id });
     }
+  },
+
+  goLibrary() { wx.switchTab({ url: '/pages/catalog/catalog' }); },
+
+  /** 「今天想改善什么」→ 两步向导（与指南库 onStartWizard 一致） */
+  onStartWizard() { wx.navigateTo({ url: '/pkg-insight/wizard/wizard' }); },
+
+  onToggleUpdates() {
+    const expanded = !this.data.updatesExpanded;
+    this.setData({
+      updatesExpanded: expanded,
+      shownUpdates: updates.shownUpdates(this.data.updatesAll, expanded)
+    });
+  },
+
+  onUpdateTap(e) {
+    const d = e.currentTarget.dataset;
+    wx.navigateTo({ url: '/pkg-read/chapter/chapter?book=' + d.book + '&sec=' + d.sec });
   },
 
   dismissUpdate() {

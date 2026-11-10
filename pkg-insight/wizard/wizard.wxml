@@ -1,0 +1,68 @@
+<view class="wz-nav">
+  <view class="wz-back" bindtap="onNavBack" hover-class="wz-back-hover" aria-label="返回">‹</view>
+  <text class="wz-nav-title">挑选建议</text>
+  <view class="wz-nav-right"></view>
+</view>
+
+<view class="page">
+  <!-- 步骤进度 -->
+  <view class="wz-prog">
+    <view class="bar {{step >= 1 ? 'on' : ''}}"></view>
+    <view class="bar {{step >= 2 ? 'on' : ''}}"></view>
+  </view>
+
+  <view wx:if="{{sourceCount}}" class="source-note">从 {{sourceCount}} 本已上架指南中挑选 · {{sourceSteps}} 条建议</view>
+
+  <!-- 第 1 步：选一个方向（自动进入下一步） -->
+  <block wx:if="{{step === 1}}">
+    <view class="wz-h">
+      <view class="st2">想先改善哪方面？</view>
+      <view class="ss">选一个就进入下一步，也可以随时返回</view>
+    </view>
+    <view class="opts">
+      <view class="opt {{sel === item.id ? 'on' : ''}}"
+            wx:for="{{topics}}" wx:key="id"
+            data-id="{{item.id}}" bindtap="onTopic" hover-class="opt-hover">
+        <view class="oi"><image class="oi-img" src="{{item.icon}}" mode="aspectFit" /></view>
+        <view class="om">
+          <view class="ot">{{item.short}}</view>
+          <view class="od">{{item.desc}}</view>
+        </view>
+        <view class="ok {{sel === item.id ? 'on' : ''}}">✓</view>
+      </view>
+    </view>
+    <view class="disclaim">第 1 步 · 共 2 步 · 选中自动进入下一步</view>
+  </block>
+
+  <!-- 第 2 步：时间预算 + 障碍 -->
+  <block wx:if="{{step === 2}}">
+    <view class="wz-h">
+      <view class="st2">能投入多少时间？</view>
+      <view class="ss">决定先给「顺手就能做」的还是需要投入的</view>
+    </view>
+    <view class="opts opts-gap">
+      <view class="opt {{budget === item.id ? 'on' : ''}}"
+            wx:for="{{budgets}}" wx:key="id"
+            data-id="{{item.id}}" bindtap="onBudget" hover-class="opt-hover">
+        <view class="om">
+          <view class="ot">{{item.label}}</view>
+          <view class="od">{{item.desc}}</view>
+        </view>
+        <view class="ok {{budget === item.id ? 'on' : ''}}">✓</view>
+      </view>
+    </view>
+
+    <view class="wz-h wz-h2">
+      <view class="st2 st2-sm">最大的障碍是？</view>
+      <view class="ss">可多选，也可以跳过</view>
+    </view>
+    <view class="tps">
+      <view class="chip {{item.selected ? 'on' : ''}}"
+            wx:for="{{obstacles}}" wx:key="id"
+            data-id="{{item.id}}" bindtap="onObstacle">{{item.label}}</view>
+    </view>
+
+    <view class="btn" bindtap="onSubmit" hover-class="btn-hover">生成我的建议</view>
+    <view class="disclaim">推荐只在本机计算，所选方向、时间预算与障碍保存在本机，不会上传。</view>
+  </block>
+</view>

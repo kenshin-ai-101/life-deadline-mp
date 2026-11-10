@@ -31,3 +31,87 @@
 
 .timeline-card { padding: 24rpx 26rpx; }
 .empty-inline { padding: 30rpx 26rpx; }
+
+/* ---------- 今天想改善什么 ----------
+   1:1 复刻《人生指南库》「为我推荐」tab 的 .pf + .qc：
+   浅瓷绿 hero 底 #E5ECE6、右下插画、松石绿按钮，尺寸与字阶同 reco.wxss。 */
+.hero-pf {
+  display: flex; align-items: center; gap: 6rpx;
+  font-size: 22rpx; color: #69736D;
+  margin: 32rpx 4rpx 16rpx;
+}
+.hero-pf-b { color: #226B60; font-weight: 600; }
+
+.hero-qc {
+  position: relative; overflow: hidden;
+  min-height: 332rpx;
+  padding: 42rpx 32rpx;
+  margin: 8rpx 0 12rpx;
+  border-radius: 24rpx;
+  background: #E5ECE6;
+  box-sizing: border-box;
+}
+.hero-qc-hover { opacity: .92; }
+.hero-qm { position: relative; z-index: 2; max-width: 368rpx; }
+.hero-qt {
+  font-size: 38rpx; font-weight: 650; letter-spacing: -1rpx;
+  white-space: nowrap; color: #242E2B;
+}
+.hero-qs {
+  font-size: 22rpx; line-height: 1.8;
+  max-width: 330rpx; margin-top: 16rpx; color: #69736D;
+}
+.hero-qa {
+  display: inline-flex; align-items: center;
+  margin-top: 32rpx; padding: 14rpx 24rpx;
+  min-height: 64rpx; font-size: 22rpx;
+  border-radius: 16rpx; color: #FFFFFF;
+  background: #226B60; font-weight: 600;
+}
+.hero-illo {
+  position: absolute; right: -10rpx; bottom: 6rpx;
+  width: 308rpx; height: 316rpx; z-index: 1;
+}
+
+/* ---------- 最近更新 ----------
+   1:1 复刻《人生指南库》「为我推荐」tab 的 .sech + .upd + .row；
+   色值取 variables-v2.wxss：纸面 #FFFDF9、发丝线 #E5E7E0、
+   正文 #242E2B、次级 #69736D、品牌 #226B60、陶土 #956947。 */
+.ru-sech { display: flex; align-items: baseline; margin: 44rpx 4rpx 22rpx; }
+.ru-t { font-size: 32rpx; font-weight: 650; color: #242E2B; }
+.ru-n { font-size: 22rpx; color: #69736D; margin-left: 16rpx; }
+.ru-more { margin-left: auto; font-size: 22rpx; color: #69736D; }
+.ru-more-hover { opacity: .6; }
+
+.ru-upd {
+  background: #FFFDF9;
+  border: 1rpx solid #E5E7E0;
+  border-radius: 24rpx;
+  padding: 0 24rpx;
+}
+.ru-row { display: flex; align-items: flex-start; gap: 20rpx; padding: 26rpx 0; }
+.ru-row + .ru-row { border-top: 1rpx solid #E5E7E0; }
+.ru-row-hover { opacity: .75; }
+.ru-dot { width: 8rpx; height: 44rpx; border-radius: 6rpx; flex: none; margin-top: 4rpx; }
+.ru-rc { flex: 1; min-width: 0; }
+.ru-l1 { display: flex; align-items: center; gap: 12rpx; font-size: 22rpx; color: #69736D; }
+.ru-tag { font-size: 22rpx; font-weight: 500; padding: 4rpx 12rpx; border-radius: 12rpx; }
+.ru-tag-new { background: #E5EEE7; color: #226B60; }
+.ru-tag-up { background: #F6EBDD; color: #956947; }
+.ru-t1 {
+  font-size: 25rpx; font-weight: 600; letter-spacing: -.3rpx;
+  line-height: 1.6; margin-top: 12rpx; color: #242E2B;
+}
+.ru-m1 { font-size: 22rpx; color: #69736D; margin-top: 10rpx; }
+.ru-chev { width: 30rpx; height: 30rpx; opacity: .5; flex: none; }
+
+.ru-empty {
+  padding: 30rpx 24rpx; background: #FFFDF9;
+  border: 1rpx solid #E5E7E0; border-radius: 24rpx;
+  font-size: 24rpx; color: #69736D;
+}
+.ru-toggle {
+  color: #226B60; font-size: 24rpx;
+  padding: 20rpx 4rpx 8rpx; min-height: 88rpx;
+  display: flex; align-items: center;
+}

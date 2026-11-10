@@ -132,7 +132,70 @@ ok('第二本条目可加入清单', !!store.addItemTask('rq01-1', ''));
 ok('阅读进度可写可读', lib.setProgress('social', 3) === true && lib.getProgress('social').sec === 3);
 ok('主题收藏可切换', lib.toggleTopicFav('relation') === true && lib.isTopicFav('relation') === true);
 
-console.log('\n[7] 清理');
+console.log('\n[7] 首页「最近更新」（复刻指南库为我推荐 tab 取数口径）');
+const upd = require(path.join(ROOT, 'utils/updates.js'));
+const recent = upd.getRecentUpdates();
+ok('章节级时间戳按天聚合', recent.days.length === 1 && recent.days[0].chapters.length === 31,
+  recent.days.map(d => d.date + ':' + d.chapters.length).join(','));
+ok('主书无章节时间戳时不计入', recent.updates.every(x => x.bookId === 'social'));
+ok('无今日更新时标题为「最近更新」', recent.title === '最近更新', recent.title);
+ok('累计上限 4 章', recent.count === 4 && recent.updates.length === 4, String(recent.count));
+ok('默认只显示 2 条', upd.shownUpdates(recent.updates, false).length === 2);
+ok('展开显示全部 4 条', upd.shownUpdates(recent.updates, true).length === 4);
+ok('每条字段齐全（跳转 / 竖条 / 标签 / 日期）', recent.updates.every(x =>
+  x.uid && x.bookId && x.sec && x.title && x.bookTitle && x.accent && x.actionLabel && x.day));
+ok('日期标签为 MM/DD', recent.updates.every(x => /^\d{2}\/\d{2}$/.test(x.dateLabel)),
+  recent.updates[0].dateLabel);
+ok('旧日期标「更新」而非「新增」', recent.updates.every(x => x.action === 'update' && x.actionLabel === '更新'));
+ok('身份色取各自书籍', recent.updates.every(x => x.accent === lib.getAccent(x.bookId)));
+const todayMock = upd.getRecentUpdates(new Date('2026-10-23T12:00:00'));
+ok('今日有更新时标题切「今日更新」', todayMock.title === '今日更新', todayMock.title);
+ok('今日列表不混入旧日期', todayMock.updates.every(x => x.day === '2026-10-23'));
+ok('近两天内标「新增」', todayMock.updates.every(x => x.action === 'new' && x.actionLabel === '新增'));
+ok('章节跳转目标都能解析', recent.updates.every(x => !!lib.getChapter(x.bookId, x.sec)));
+
+console.log('\n[8] 首页「今天想改善什么」与本地推荐链路');
+const prof = require(path.join(ROOT, 'utils/profile.js'));
+const rec = require(path.join(ROOT, 'pkg-insight/recommend.js'));
+const matchable = booksMeta.books.filter(b => b.capabilities && b.capabilities.matchable);
+ok('可推荐书籍 2 本', matchable.length === 2, String(matchable.length));
+ok('hero 可挑建议 1412 条', matchable.reduce((n, b) => n + b.stats.steps, 0) === 1412);
+ok('向导 8 个主推方向', lib.getTopics().filter(t => t.primary).length === 8);
+ok('画像初始为空', prof.getProfileV2() === null);
+prof.saveProfileV2({ topicIds: ['sleep'], budget: 't15', obstacles: [], goals: [], ts: 1 });
+const p2 = prof.getProfileV2();
+ok('画像可存可取', !!p2 && p2.topicIds[0] === 'sleep' && p2.budget === 't15');
+ok('无画像时推荐为空', rec.recommendV2(null, 8).items.length === 0);
+const r8 = rec.recommendV2(p2, 8);
+ok('推荐返回 8 条', r8.items.length === 8, String(r8.items.length));
+ok('结果字段齐全（跳转 / 书名 / 章名 / 理由 / 身份色）', r8.items.every(x =>
+  x.step && x.step.uid && x.step.id && x.step.bookId && x.step.title && x.step.plain &&
+  x.chapterTitle && x.bookTitle && x.reasons.length && x.accent));
+ok('理由 chips 不超过 3 个', r8.items.every(x => x.reasons.length <= 3));
+ok('首选是全场最高分', r8.items[0].score >= Math.max.apply(null, r8.items.slice(1).map(x => x.score)));
+ok('t15 时间预算硬过滤', r8.items.every(x => ['少', '中'].indexOf(x.step.cost.time) > -1));
+const r5 = rec.recommendV2({ topicIds: ['sleep'], budget: 't5', obstacles: [], goals: [] }, 8);
+ok('t5 只留「少」时间', r5.items.length > 0 && r5.items.every(x => x.step.cost.time === '少'));
+const r4 = rec.recommendV2(p2, 4);
+const perChapter = {};
+r4.items.forEach(x => {
+  const k = x.step.bookId + ':' + x.step.sec;
+  perChapter[k] = (perChapter[k] || 0) + 1;
+});
+ok('每章最多 2 条（来源分散）', Object.keys(perChapter).every(k => perChapter[k] <= 2),
+  JSON.stringify(perChapter));
+const excludedUid = r8.items[0].step.uid;
+prof.sendFeedback(excludedUid, 'negative');
+const r9 = rec.recommendV2(p2, 8);
+ok('负反馈后不再推该条', r9.items.every(x => x.step.uid !== excludedUid));
+ok('换一条后仍满 8 条', r9.items.length === 8, String(r9.items.length));
+ok('跨主题可出结果', rec.recommendV2(
+  { topicIds: ['relation'], budget: 'tfree', obstacles: [], goals: [] }, 8).items.length === 8);
+ok('画像主题可映射为文字', (lib.getTopic('sleep') || {}).name === '睡眠和作息');
+prof.clearProfileV2();
+ok('画像可清空', prof.getProfileV2() === null);
+
+console.log('\n[9] 清理');
 store.clearAll();
 ok('清空后无事件', store.getEvents().length === 0);
 ok('清空后无成员', store.getMembers().length === 0);

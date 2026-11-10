@@ -46,6 +46,19 @@
       </view>
     </view>
 
+    <!-- 今天想改善什么：复刻《人生指南库》「为我推荐」tab 的问题入口 hero -->
+    <view wx:if="{{hasProfile}}" class="hero-pf">
+      <text>已按你的关注点 </text><text class="hero-pf-b">「{{profileTopics}}」</text><text> 推荐</text>
+    </view>
+    <view class="hero-qc" bindtap="onStartWizard" hover-class="hero-qc-hover">
+      <view class="hero-qm">
+        <view class="hero-qt">今天想改善什么？</view>
+        <view class="hero-qs">从 {{heroCount}} 本书里，找到适合当下的行动</view>
+        <view class="hero-qa">开始挑选 →</view>
+      </view>
+      <image class="hero-illo" src="/images/home-hero.jpg" mode="aspectFit" />
+    </view>
+
     <view class="section-head">
       <text class="section-title">我的时间轴</text>
       <text class="section-more" bindtap="goTodo">全部清单 ›</text>
@@ -75,6 +88,33 @@
         <text class="tag">{{daily.grade}} 级</text>
         <text class="section-more">看完整条目 ›</text>
       </view>
+    </view>
+
+    <!-- 最近更新：复刻《人生指南库》「为我推荐」tab 的今日/最近更新板块 -->
+    <view class="ru-sech">
+      <text class="ru-t">{{updatesTitle}}</text>
+      <text class="ru-n" wx:if="{{updatesCount}}">{{updatesCount}}</text>
+      <text class="ru-more" bindtap="goLibrary" hover-class="ru-more-hover">知识库 ›</text>
+    </view>
+    <view wx:if="{{updatesCount}}" class="ru-upd">
+      <view class="ru-row" wx:for="{{shownUpdates}}" wx:key="uid"
+            data-book="{{item.bookId}}" data-chapter="{{item.chapterId}}" data-sec="{{item.sec}}"
+            bindtap="onUpdateTap" hover-class="ru-row-hover">
+        <view class="ru-dot" style="background:{{item.accent}}"></view>
+        <view class="ru-rc">
+          <view class="ru-l1">
+            <text>{{item.bookTitle}}</text>
+            <text class="ru-tag {{item.action === 'new' ? 'ru-tag-new' : 'ru-tag-up'}}">{{item.actionLabel}}</text>
+          </view>
+          <view class="ru-t1">{{item.title}}</view>
+          <view class="ru-m1">{{item.dateLabel}} · 内容{{item.actionLabel}}</view>
+        </view>
+        <image class="ru-chev" src="/images/icon-chev.png" mode="aspectFit" />
+      </view>
+    </view>
+    <view wx:else class="ru-empty">内容同步中，稍后再来看看</view>
+    <view wx:if="{{updatesCount > 2}}" class="ru-toggle" bindtap="onToggleUpdates">
+      {{updatesExpanded ? '收起更新' : '展开全部更新'}} ›
     </view>
 
     <view class="disclaimer">

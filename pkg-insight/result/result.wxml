@@ -1,0 +1,86 @@
+<view class="wz-nav">
+  <view class="wz-back" bindtap="onNavBack" hover-class="wz-back-hover" aria-label="返回">‹</view>
+  <text class="wz-nav-title">为你挑选</text>
+  <view class="wz-nav-right"></view>
+</view>
+
+<view class="page">
+  <!-- 匹配中过渡态 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="load-ring"></view>
+    <view class="load-text">正在为你匹配，从 {{totalSteps}} 条建议里挑出最合适的…</view>
+  </view>
+
+  <!-- 无档案空态 -->
+  <block wx:elif="{{empty}}">
+    <view class="lb-empty">
+      <view class="empty-mark">✦</view>
+      先花 20 秒选一下方向，推荐会准很多
+      <navigator url="/pkg-insight/wizard/wizard" open-type="navigate" class="lb-btn lb-btn-primary empty-btn">开始挑选</navigator>
+    </view>
+  </block>
+
+  <block wx:elif="{{noResults}}">
+    <view class="lb-empty">这个方向的建议暂时都看过了，换个方向再试试。<view class="lb-btn" bindtap="onRedo">重新挑选</view></view>
+  </block>
+
+  <block wx:else>
+    <view wx:if="{{offline}}" class="scope">当前使用本地推荐，所有计算都在本机完成。</view>
+
+    <!-- 摘要条：关注 / 时间 / 障碍 -->
+    <view class="rsum lb-card">
+      <view class="rdot" style="background:#226B60"></view>
+      <view class="rdot" style="background:#C99975"></view>
+      <view class="tx">
+        <block wx:for="{{summaryRuns}}" wx:key="index">
+          <text class="{{item.b ? 'b' : ''}}">{{item.t}}</text>
+        </block>
+      </view>
+    </view>
+
+    <!-- 先试这条 -->
+    <view class="sech"><text class="t">先试这条</text></view>
+    <view wx:if="{{first}}" class="topcard lb-card">
+      <view class="why-row">
+        <text class="why" wx:for="{{first.reasons}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="tt" bindtap="onOpenStep" data-id="{{first.step.id}}">{{first.step.title}}</view>
+      <view class="tp">{{first.step.plain}}</view>
+      <view class="acts">
+        <view class="sbtn sbtn-solid" bindtap="onOpenStep" data-id="{{first.step.id}}">查看原文 ›</view>
+        <view class="sbtn sbtn-ghost" bindtap="onFav" data-id="{{first.step.id}}">
+          <text class="sstar {{first.fav ? 'on' : ''}}">{{first.fav ? '★' : '☆'}}</text>{{first.fav ? '已收藏' : '收藏'}}
+        </view>
+      </view>
+      <view class="fbrow">
+        <view class="fb" hover-class="row-hover" bindtap="onFeedback" data-uid="{{first.step.uid}}" data-kind="negative">✕ 不太合适</view>
+        <view class="fb" hover-class="row-hover" bindtap="onFeedback" data-uid="{{first.step.uid}}" data-kind="doing">✓ 已经在做</view>
+        <view class="fb" hover-class="row-hover" bindtap="onFeedback" data-uid="{{first.step.uid}}" data-kind="positive">☆ 值得试试</view>
+      </view>
+    </view>
+
+    <!-- 其他适合你的 -->
+    <view wx:if="{{others.length}}" class="sech">
+      <text class="t">其他适合你的</text>
+      <text class="n">{{others.length}} · 跨 {{bookCount}} 本书</text>
+    </view>
+    <view wx:for="{{others}}" wx:key="step.uid" class="minor lb-card"
+          bindtap="onOpenStep" data-id="{{item.step.id}}">
+      <view class="mdot" style="background:{{item.accent}}"></view>
+      <view class="mmain">
+        <view class="mt">{{item.step.title}}</view>
+        <view class="mp">{{item.step.plain}}</view>
+        <view class="mm">{{item.bookTitle}} · {{item.chapterTitle}} · 证据 {{item.step.grade}}</view>
+      </view>
+      <image class="chev" src="/images/icon-chev.png" mode="aspectFit" />
+    </view>
+
+    <button class="gbtn share-btn" open-type="share">分享这份发现</button>
+    <view class="bottom-row">
+      <view class="gbtn" bindtap="onRedo">换个方向</view>
+      <view class="gbtn gbtn-brand" bindtap="onGoLibrary">去知识库</view>
+    </view>
+
+    <view class="disclaim">推荐基于你的选择与条目的成本/收益/证据强度排序，仅供参考，不构成医疗或法律建议。</view>
+  </block>
+</view>

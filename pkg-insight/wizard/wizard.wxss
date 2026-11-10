@@ -1,0 +1,107 @@
+/* 挑选建议：复刻《人生指南库》向导页（暖瓷白 × 松石绿） */
+page { background: #F6F5F0; }
+
+.wz-nav {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32rpx;
+  box-sizing: border-box;
+  background: #F6F5F0;
+}
+.wz-back {
+  width: 60rpx; height: 60rpx;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 52rpx; font-weight: 200; color: #242E2B;
+}
+.wz-back-hover { opacity: .6; }
+.wz-nav-title {
+  font-size: 32rpx; font-weight: 600; color: #242E2B;
+  flex: 1; text-align: center; margin-right: 190rpx;
+  pointer-events: none;
+}
+.wz-nav-right { display: none; }
+
+.page {
+  padding: 8rpx 36rpx 56rpx;
+  background: #F6F5F0;
+  min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* ---------- 步骤进度 ---------- */
+.wz-prog { display: flex; gap: 12rpx; margin: 32rpx 0 8rpx; }
+.wz-prog .bar { height: 8rpx; flex: 1; border-radius: 4rpx; background: #E5E7E0; }
+.wz-prog .bar.on { background: #226B60; }
+
+/* ---------- 标题区 ---------- */
+.wz-h { padding: 12rpx 0 8rpx; }
+.wz-h .st2 { font-size: 44rpx; font-weight: 650; letter-spacing: -1rpx; color: #242E2B; }
+.wz-h .st2-sm { font-size: 36rpx; }
+.wz-h .ss { font-size: 24rpx; color: #69736D; margin-top: 12rpx; }
+.wz-h2 { margin-top: 44rpx; }
+
+/* ---------- 选项列表 ---------- */
+.opts { margin-top: 28rpx; }
+.opts-gap { margin: 28rpx 0 44rpx; }
+.opt {
+  display: flex; align-items: center; gap: 24rpx;
+  padding: 30rpx 28rpx;
+  border: 3rpx solid #E5E7E0;
+  border-radius: 24rpx;
+  background: #FFFDF9;
+  margin-bottom: 20rpx;
+  box-sizing: border-box;
+}
+.opt-hover { opacity: .85; }
+.opt .oi {
+  width: 76rpx; height: 76rpx; border-radius: 20rpx;
+  background: #EFEEE7;
+  display: flex; align-items: center; justify-content: center;
+  flex: none;
+}
+.oi-img { width: 38rpx; height: 38rpx; }
+.opt .om { flex: 1; min-width: 0; }
+.opt .ot { font-size: 29rpx; font-weight: 700; color: #242E2B; }
+.opt .od { font-size: 22rpx; color: #69736D; margin-top: 4rpx; }
+.opt .ok {
+  width: 40rpx; height: 40rpx; border-radius: 12rpx;
+  border: 3rpx solid #E5E7E0;
+  flex: none;
+  display: flex; align-items: center; justify-content: center;
+  color: #FFFFFF; font-size: 22rpx;
+  box-sizing: border-box;
+}
+.opt.on { border-color: #226B60; background: #E5EEE7; }
+.opt.on .oi { background: #FFFDF9; }
+.opt.on .ok { background: #226B60; border-color: #226B60; }
+
+/* ---------- 障碍 chips ---------- */
+.tps { display: flex; flex-wrap: wrap; gap: 16rpx; margin-top: 24rpx; }
+.chip {
+  display: inline-flex; align-items: center;
+  min-height: 76rpx; padding: 16rpx 26rpx;
+  font-size: 25rpx;
+  border: 1rpx solid #E5E7E0; border-radius: 999rpx;
+  color: #242E2B; background: #FFFDF9;
+  box-sizing: border-box;
+}
+.chip.on { background: #226B60; border-color: #226B60; color: #FFFFFF; font-weight: 700; }
+
+/* ---------- 主按钮 ---------- */
+.btn {
+  margin-top: 52rpx; padding: 28rpx;
+  border-radius: 16rpx;
+  background: #226B60; color: #FFFFFF;
+  font-size: 30rpx; font-weight: 600; text-align: center;
+}
+.btn-hover { opacity: .88; }
+
+/* ---------- 底部说明 ---------- */
+.disclaim {
+  font-size: 21rpx; color: #727B75; line-height: 1.8;
+  text-align: center; margin-top: 36rpx;
+}
+.source-note { margin: 20rpx 0 8rpx; color: #226B60; font-size: 22rpx; line-height: 1.7; }
