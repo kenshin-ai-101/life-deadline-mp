@@ -17,6 +17,7 @@ const TOPIC_SHORT = {
 Page({
   data: {
     loading: true,
+    statusBarHeight: 20,
     empty: false,
     noResults: false,
     offline: true,
@@ -28,6 +29,9 @@ Page({
   },
 
   onLoad() {
+    let h = 20;
+    try { h = (wx.getSystemInfoSync() || {}).statusBarHeight || 20; } catch (e) { /* 兜底 */ }
+    this.setData({ statusBarHeight: h });
     const p = profile.getProfileV2();
     if (!p || !(p.topicIds || []).length) {
       this.setData({ empty: true, loading: false });

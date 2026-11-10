@@ -35,6 +35,7 @@ const OBSTACLES = [
 Page({
   data: {
     step: 1,
+    statusBarHeight: 20,
     topics: [],
     sourceCount: 0,
     sourceSteps: 0,
@@ -46,6 +47,8 @@ Page({
   },
 
   onLoad(options) {
+    let h = 20;
+    try { h = (wx.getSystemInfoSync() || {}).statusBarHeight || 20; } catch (e) { /* 兜底 */ }
     const topics = lib.getTopics().filter(t => t.primary).map(t => ({
       id: t.id,
       name: t.name,
@@ -57,6 +60,7 @@ Page({
     const pre = options.topic && topics.some(t => t.id === options.topic) ? options.topic : '';
     const books = lib.getBooks().filter(b => b.capabilities && b.capabilities.matchable);
     this.setData({
+      statusBarHeight: h,
       topics: topics,
       sel: pre,
       sourceCount: books.length,

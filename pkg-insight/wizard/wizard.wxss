@@ -18,10 +18,11 @@ page { background: #F6F5F0; }
 .wz-back-hover { opacity: .6; }
 .wz-nav-title {
   font-size: 32rpx; font-weight: 600; color: #242E2B;
-  flex: 1; text-align: center; margin-right: 190rpx;
+  flex: 1; text-align: center;
   pointer-events: none;
 }
-.wz-nav-right { display: none; }
+/* 与左侧返回键等宽，保证标题真正居中 */
+.wz-nav-right { width: 60rpx; flex: none; }
 
 .page {
   padding: 8rpx 36rpx 56rpx;

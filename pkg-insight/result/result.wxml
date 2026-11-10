@@ -1,3 +1,4 @@
+<view style="height:{{statusBarHeight}}px"></view>
 <view class="wz-nav">
   <view class="wz-back" bindtap="onNavBack" hover-class="wz-back-hover" aria-label="返回">‹</view>
   <text class="wz-nav-title">为你挑选</text>
