@@ -1,10 +1,12 @@
 const store = require('../../utils/store.js');
 const meta = require('../../data/meta.js');
 const mineStats = require('../../utils/mine-stats.js');
+const calcModels = require('../../utils/calc-models.js');
 
 Page({
   data: {
     meta: meta,
+    calcCount: calcModels.MODELS.length,
     stats: [],
     trackRows: [],
     limits: [

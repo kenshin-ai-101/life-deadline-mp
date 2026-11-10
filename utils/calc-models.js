@@ -77,6 +77,43 @@ const PENSION_MONTHS = {
 
 function pensionMonthsOf(age) { return PENSION_MONTHS[age] || PENSION_MONTHS[60]; }
 
+/** 月度 IRR（二分法）：t=0 拿到 advance，t=1..n 每期付 payment。
+ *  npv(r) 随 r 单调递增：r=0 时为 advance − 总还款，r 越大折现后还款越轻。 */
+function monthlyIrr(advance, payment, n) {
+  const npv = r => {
+    let v = advance;
+    for (let t = 1; t <= n; t += 1) v -= payment / Math.pow(1 + r, t);
+    return v;
+  };
+  if (npv(0) >= 0) return null;          // 总还款不超过到手金额，等于免息
+  let lo = 0, hi = 1;                    // 月利率上限 100%
+  if (npv(hi) < 0) return null;
+  for (let k = 0; k < 200; k += 1) {
+    const mid = (lo + hi) / 2;
+    if (npv(mid) < 0) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+// 综合所得年度税率表（2019 年起）：上限 / 税率 / 速算扣除数
+const TAX_BRACKETS = [
+  { cap: 36000, rate: 0.03, quick: 0 },
+  { cap: 144000, rate: 0.10, quick: 2520 },
+  { cap: 300000, rate: 0.20, quick: 16920 },
+  { cap: 420000, rate: 0.25, quick: 31920 },
+  { cap: 660000, rate: 0.30, quick: 52920 },
+  { cap: 960000, rate: 0.35, quick: 85920 },
+  { cap: Infinity, rate: 0.45, quick: 181920 }
+];
+
+/** 年度综合所得个税（含速算扣除数） */
+function incomeTax(taxable) {
+  if (!(taxable > 0)) return 0;
+  const b = TAX_BRACKETS.filter(x => taxable <= x.cap)[0];
+  return taxable * b.rate - b.quick;
+}
+
+
 // ---------------- 1. 养老保险回本 ----------------
 
 function calcPension(v) {
@@ -298,6 +335,143 @@ function calcStudy(v) {
   return rows;
 }
 
+// ---------------- 5. 分期真实年化（IRR） ----------------
+
+function calcInstallment(v) {
+  const principal = Number(v.principal);
+  const periods = Math.round(Number(v.periods));
+  const payment = Number(v.payment);
+  const fee = Number(v.fee) || 0;
+  if (!(principal > 0) || !(periods > 0) || !(payment > 0) || fee < 0 || fee >= principal) return null;
+
+  const advance = principal - fee;        // 实际到手
+  const total = payment * periods;        // 总还款
+  const cost = total - principal;         // 利息 + 手续费
+  if (cost < 0) return null;
+
+  const irr = monthlyIrr(advance, payment, periods);  // 月度内部收益率
+  const ear = irr === null ? null : Math.pow(1 + irr, 12) - 1;
+  const flatMonthly = cost / principal / periods * 100;
+
+  const rows = [
+    { label: '实际到手', value: money(advance) + ' 元', note: fee > 0 ? '本金 ' + money(principal) + ' 元先扣掉 ' + money(fee) + ' 元手续费。' : '没有前置手续费，到手就是本金。' },
+    { label: '总还款', value: money(total) + ' 元', note: periods + ' 期 × 每期 ' + money(payment) + ' 元。' },
+    { label: '多付的钱', value: money(cost) + ' 元', note: '占本金 ' + (cost / principal * 100).toFixed(1) + '%，这是你为「现在就能拿到」付的价格。' },
+    { label: '账面费率', value: flatMonthly.toFixed(2) + '% / 月 · ' + (flatMonthly * 12).toFixed(1) + '% / 年', note: '销售常说的口径：总费用 ÷ 本金 ÷ 期数，再乘 12。看起来很低，但它不是利率。' },
+    {
+      label: '真实年化（IRR）',
+      value: ear === null ? '免息' : (ear * 100).toFixed(2) + '%',
+      note: irr === null
+        ? '总还款没有超过到手金额，等于免息。'
+        : '按每期实际占用的本金反解内部收益率再折成复利年化；通常是账面年费率的 ' + (flatMonthly > 0 ? (ear * 100 / (flatMonthly * 12)).toFixed(1) : '—') + ' 倍。'
+    },
+    {
+      label: '口径',
+      value: '现金流 IRR',
+      note: '按等额本息现金流反解，不含逾期罚息、提前还款手续费与砍头息之外的其他费用；年化用复利口径（EAR）。'
+    }
+  ];
+  return rows;
+}
+
+// ---------------- 6. 应急金能撑多久 ----------------
+
+function calcEmergency(v) {
+  const cash = Number(v.cash);
+  const need = Number(v.need);
+  const cut = Number(v.cut) || 0;
+  const target = Number(v.target) || 6;
+  if (!(cash >= 0) || !(need > 0) || cut < 0 || cut >= need) return null;
+
+  const net = need - cut;                       // 失业后每月净消耗
+  const months = cash / net;                    // 能撑几个月
+  const targetCash = net * target;
+  const gap = Math.max(0, targetCash - cash);
+
+  let level, levelNote;
+  if (months < 3) {
+    level = '偏紧';
+    levelNote = '不到 3 个月，一旦断收入就要立刻借钱或变卖资产。';
+  } else if (months < 6) {
+    level = '基本够用';
+    levelNote = '够撑过一次普通求职周期，但遇到大病、搬家或行业寒冬仍会吃紧。';
+  } else if (months < 12) {
+    level = '稳健';
+    levelNote = '覆盖大多数失业与换城市的过渡期。';
+  } else {
+    level = '很稳';
+    levelNote = '除了失业，还能扛一次住院、修房或长期空窗。';
+  }
+
+  return [
+    { label: '失业后每月净消耗', value: money(net) + ' 元', note: '必要支出 ' + money(need) + ' 元，减掉能砍掉的 ' + money(cut) + ' 元。' },
+    { label: '能撑', value: months.toFixed(1) + ' 个月', note: '现金 ÷ 每月净消耗，不考虑这期间新进来的收入。' },
+    { label: '目标 ' + target + ' 个月', value: money(targetCash) + ' 元', note: gap > 0 ? '还差 ' + money(gap) + ' 元才达标。' : '已经达标，多出 ' + money(cash - targetCash) + ' 元。' },
+    { label: '评价', value: level, note: levelNote },
+    { label: '口径', value: '只看现金流', note: '不含信用卡额度、亲友借款和可变现的长期资产；现金指随时能取出来的活期、货基与短期存款。' }
+  ];
+}
+
+// ---------------- 7. 税后到手（工资薪金） ----------------
+
+function calcSalary(v) {
+  const salary = Number(v.salary);
+  const ratio = Number(v.ratio);
+  const deduction = Number(v.deduction) || 0;
+  if (!(salary > 0) || ratio < 0 || ratio > 60 || deduction < 0) return null;
+
+  const gross = salary * 12;
+  const social = gross * ratio / 100;             // 个人承担的社保 + 公积金
+  const taxable = gross - 60000 - social - deduction * 12;  // 年应纳税所得额
+  const tax = incomeTax(taxable);
+  const net = gross - social - tax;
+  const burden = tax / gross * 100;
+
+  return [
+    { label: '全年社保公积金（个人）', value: money(social) + ' 元', note: '按税前年收入 × ' + ratio + '% 估算（养老 8% + 医疗 2% + 失业 0.5% + 公积金 5%–12%）。' },
+    { label: '全年个税', value: money(tax) + ' 元', note: '综合所得年度税率表 + 速算扣除数，已扣 6 万起征点与专项附加扣除。' },
+    { label: '年应纳税所得额', value: money(Math.max(0, taxable)) + ' 元', note: '税前 ' + money(gross) + ' − 6 万 − 社保公积金 − 专项附加扣除。' },
+    { label: '月均到手', value: money(net / 12) + ' 元', note: '全年到手 ' + money(net) + ' 元 ÷ 12；年终奖、补贴与加班费另算。' },
+    { label: '个税负担率', value: burden.toFixed(1) + '%', note: '个税 ÷ 税前年收入，加上社保后实际到手约 ' + (net / gross * 100).toFixed(1) + '%。' },
+    { label: '口径', value: '年度汇算口径', note: '按综合所得年度汇算估算，未含缴费基数上下限、地方补贴差异、年终奖单独计税与劳务报酬等其他所得。' }
+  ];
+}
+
+// ---------------- 8. 家庭保障缺口（DIME 法） ----------------
+
+function calcProtection(v) {
+  const debt = Number(v.debt) || 0;
+  const expense = Number(v.expense);
+  const years = Number(v.years) || 10;
+  const edu = Number(v.edu) || 0;
+  const assets = Number(v.assets) || 0;
+  const insured = Number(v.insured) || 0;
+  if (!(expense > 0) || debt < 0 || edu < 0 || assets < 0 || insured < 0 || !(years > 0)) return null;
+
+  const incomeNeed = expense * years;
+  const total = debt + incomeNeed + edu;
+  const have = assets + insured;
+  const gap = total - have;
+
+  return [
+    { label: '应备总额', value: money(total) + ' 元', note: '未还负债 ' + money(debt) + ' + 家庭支出 ' + money(expense) + '×' + years + ' 年 + 教育金 ' + money(edu) + '。' },
+    { label: '已有可抵', value: money(have) + ' 元', note: '可动用资产 ' + money(assets) + ' + 已有寿险保额 ' + money(insured) + '。' },
+    {
+      label: '保障缺口',
+      value: gap > 0 ? money(gap) + ' 元' : '已覆盖',
+      note: gap > 0
+        ? '相当于 ' + (gap / expense).toFixed(1) + ' 年家庭支出；这是「主要收入来源中断」时需要一次性补上的数。'
+        : '现有资产与保额已经覆盖，多出 ' + money(-gap) + ' 元。'
+    },
+    {
+      label: '支出覆盖年数',
+      value: (have - debt - edu > 0 ? ((have - debt - edu) / expense).toFixed(1) + ' 年' : '不够抵负债'),
+      note: '把负债和教育金先扣掉，剩下的钱够家里按现在的开销过几年。'
+    },
+    { label: '口径', value: 'DIME 法', note: '负债 + 收入 + 房贷 + 教育（Debt / Income / Mortgage / Education）减现有资产与保额；不推荐任何保险产品，费率与核保以保险公司为准。' }
+  ];
+}
+
 // ---------------- 四个模型 ----------------
 
 const MODELS = [
@@ -370,16 +544,82 @@ const MODELS = [
     ],
     invalid: '请检查输入：读书年数、工作年数、毕业后每年多挣都要大于 0，学费与少挣不能为负。',
     calc: calcStudy
+  },
+  {
+    key: 'installment',
+    name: '分期真实年化',
+    back: '第 5 节',
+    intro: '把「每月只要几百块」的分期，按每期实际占用的本金反解 IRR，还原成真实的年化成本。',
+    fields: [
+      { key: 'principal', label: '借款本金（元）', value: '12000' },
+      { key: 'periods', label: '分期期数（月）', value: '12' },
+      { key: 'payment', label: '每月还款（元）', value: '1080' },
+      { key: 'fee', label: '一次性手续费 / 服务费（元）', value: '0' }
+    ],
+    invalid: '请检查输入：本金、期数、每月还款需为正数，手续费不能超过本金。',
+    calc: calcInstallment
+  },
+  {
+    key: 'emergency',
+    name: '应急金能撑多久',
+    back: '第 7 节',
+    intro: '断收入后现金能撑几个月：按失业后的每月净消耗算，并对照 3 / 6 / 12 个月的行业常用线。',
+    fields: [
+      { key: 'cash', label: '能立刻动用的现金（元）', value: '50000' },
+      { key: 'need', label: '每月必要支出（元）', value: '12000' },
+      { key: 'cut', label: '失业后每月能砍掉的支出（元）', value: '2000' },
+      {
+        key: 'target', label: '目标月数', type: 'choice', value: '6',
+        options: [{ value: '3', label: '3 个月' }, { value: '6', label: '6 个月' }, { value: '12', label: '12 个月' }]
+      }
+    ],
+    invalid: '请检查输入：必要支出要大于 0，且必须大于能砍掉的那部分支出。',
+    calc: calcEmergency
+  },
+  {
+    key: 'salary',
+    name: '税后到手',
+    back: '第 5 节',
+    intro: '按综合所得年度税率表 + 专项附加扣除，估算税前工资扣完社保与个税后每月到手多少。',
+    fields: [
+      { key: 'salary', label: '税前月薪（元）', value: '15000' },
+      { key: 'ratio', label: '社保公积金个人比例（%）', value: '20' },
+      { key: 'deduction', label: '专项附加扣除（元/月）', value: '2000' }
+    ],
+    invalid: '请检查输入：税前月薪要大于 0，个人缴纳比例不高于 60%。',
+    calc: calcSalary
+  },
+  {
+    key: 'protection',
+    name: '家庭保障缺口',
+    back: '第 7 节',
+    intro: '用保险业通用的 DIME 法算「主要收入中断时要补多少钱」，只算缺口，不推荐产品。',
+    fields: [
+      { key: 'debt', label: '未还负债（房贷等，元）', value: '800000' },
+      { key: 'expense', label: '家庭年支出（元）', value: '120000' },
+      {
+        key: 'years', label: '需要覆盖年数', type: 'choice', value: '10',
+        options: [{ value: '5', label: '5 年' }, { value: '10', label: '10 年' }, { value: '15', label: '15 年' }]
+      },
+      { key: 'edu', label: '孩子教育金缺口（元）', value: '300000' },
+      { key: 'assets', label: '可动用资产（元）', value: '200000' },
+      { key: 'insured', label: '已有寿险保额（元）', value: '300000' }
+    ],
+    invalid: '请检查输入：家庭年支出要大于 0，各项金额不能为负。',
+    calc: calcProtection
   }
 ];
 
 module.exports = {
   MODELS,
   PENSION_MONTHS,
+  TAX_BRACKETS,
   pensionMonthsOf,
   annuityPayment,
   annuityTotalInterest,
   equalPrincipal,
+  monthlyIrr,
+  incomeTax,
   money,
   monthText
 };

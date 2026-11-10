@@ -25,7 +25,7 @@
 
   <view class="section-head"><text class="section-title">功能入口</text></view>
   <view class="card" style="padding:0 28rpx">
-    <view class="list-item row-between" bindtap="goCalc"><text class="t-body">算账器（4 个）</text><text class="chev">›</text></view>
+    <view class="list-item row-between" bindtap="goCalc"><text class="t-body">算账器（{{calcCount}} 个）</text><text class="chev">›</text></view>
     <view class="list-item row-between" bindtap="goElder"><text class="t-body">长辈端大字模式</text><text class="chev">›</text></view>
     <view class="list-item row-between" bindtap="goAid"><text class="t-body">处境急救卡</text><text class="chev">›</text></view>
     <view class="list-item row-between" bindtap="copyFeedback"><text class="t-body">反馈时限错误</text><text class="chev">›</text></view>

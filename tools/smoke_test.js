@@ -384,7 +384,53 @@ ok('输入非法时返回 null（不会算出假数）',
   modelOf('mortgage').calc({ principal: '100', rate: '3', months: '12', prepay: '200' }) === null &&
   modelOf('pension').calc({ age: '60', paid: '0', monthly: '3000', growth: '3', discount: '2' }) === null);
 ok('四个模型都有字段 / 口径 / 非法提示',
-  calc.MODELS.length === 4 && calc.MODELS.every(m => m.fields.length >= 3 && m.intro && m.invalid && m.calc));
+  calc.MODELS.length >= 4 && calc.MODELS.every(m => m.fields.length >= 3 && m.intro && m.invalid && m.calc));
+
+console.log('\n[12b] 补充算账器：分期 / 应急金 / 税后 / 保障缺口');
+ok('八个算账器全部注册', calc.MODELS.length === 8, String(calc.MODELS.length));
+// 分期：12000 元分 12 期每期 1080（账面月费率 0.67%）→ IRR 真实年化 15.45%
+const inst = runModel('installment');
+ok('分期账面月费率 0.67%', rowOf(inst, '账面费率').value === '0.67% / 月 · 8.0% / 年',
+  rowOf(inst, '账面费率').value);
+ok('分期真实年化按 IRR 折复利 = 15.45%', rowOf(inst, '真实年化').value === '15.45%',
+  rowOf(inst, '真实年化').value);
+ok('信用卡典型 0.6% 月费率 → 真实年化 13.8%',
+  Math.abs((Math.pow(1 + calc.monthlyIrr(12000, 1000 + 72, 12), 12) - 1) * 100 - 13.84) < 0.05,
+  ((Math.pow(1 + calc.monthlyIrr(12000, 1072, 12), 12) - 1) * 100).toFixed(2));
+ok('含前置手续费会抬高真实年化',
+  calc.monthlyIrr(11400, 1080, 12) > calc.monthlyIrr(12000, 1080, 12));
+ok('免息分期返回 null（不编造利率）', calc.monthlyIrr(12000, 1000, 12) === null);
+// 应急金：5 万现金 / 每月净消耗 1 万 → 5 个月，离 6 个月目标差 1 万
+const em = runModel('emergency');
+ok('应急金能撑 5.0 个月', rowOf(em, '能撑').value === '5.0 个月', rowOf(em, '能撑').value);
+ok('应急金缺口 = 目标 6 个月 − 现有现金', /还差 10,000 元/.test(rowOf(em, '目标').note),
+  rowOf(em, '目标').note);
+ok('应急金评价随月数分档', rowOf(em, '评价').value === '基本够用' &&
+  rowOf(runModel('emergency', { cash: '10000' }), '评价').value === '偏紧' &&
+  rowOf(runModel('emergency', { cash: '200000' }), '评价').value === '很稳');
+// 个税：月薪 1.5 万、社保 20%、专项附加 2000 → 年应税 6 万，个税 3480
+const sal = runModel('salary');
+ok('年应纳税所得额 = 6 万', rowOf(sal, '年应纳税所得额').value === '60,000 元',
+  rowOf(sal, '年应纳税所得额').value);
+ok('年个税 3,480 元（10% 档 − 速算 2,520）', rowOf(sal, '全年个税').value === '3,480 元',
+  rowOf(sal, '全年个税').value);
+ok('月均到手 11,710 元', rowOf(sal, '月均到手').value === '11,710 元',
+  rowOf(sal, '月均到手').value);
+ok('税率表分档与速算扣除数正确',
+  Math.round(calc.incomeTax(36000)) === 1080 &&
+  Math.round(calc.incomeTax(144000)) === 11880 &&
+  Math.round(calc.incomeTax(300000)) === 43080 &&
+  Math.round(calc.incomeTax(1000000)) === 268080);
+ok('收入低于起征点不交税', calc.incomeTax(-1000) === 0 && runModel('salary', { salary: '4000' }).length === 6);
+// 保障缺口：80 万负债 + 12 万×10 年 + 30 万教育 − 20 万资产 − 30 万保额 = 180 万
+const pro = runModel('protection');
+ok('应备总额 230 万', rowOf(pro, '应备总额').value === '2,300,000 元', rowOf(pro, '应备总额').value);
+ok('保障缺口 180 万', rowOf(pro, '保障缺口').value === '1,800,000 元', rowOf(pro, '保障缺口').value);
+ok('已覆盖时不再显示缺口', rowOf(runModel('protection', { insured: '3000000' }), '保障缺口').value === '已覆盖');
+ok('新增模型输入非法时同样返回 null',
+  modelOf('installment').calc({ principal: '0', periods: '12', payment: '100', fee: '0' }) === null &&
+  modelOf('emergency').calc({ cash: '1', need: '1000', cut: '1000', target: '6' }) === null &&
+  modelOf('salary').calc({ salary: '0', ratio: '20', deduction: '0' }) === null);
 
 console.log('\n[13] 清理');
 store.clearAll();
