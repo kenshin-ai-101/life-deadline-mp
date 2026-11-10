@@ -1,6 +1,8 @@
 <view class="page">
   <view class="notice">
-    书中没有可直接套用的统一参数，下面预填的都是示例输入，不是书中口径。请按自己的数字改；结果不给倾向性结论。
+    四个算账器按现实规则算：养老用国家计发月数 + 养老金年度调整，房贷用银行真实的等额本息 / 等额本金摊销，
+    养育按年龄分段并计通胀，读书把学费和「少挣的钱」都算进投入。
+    预填数字都是示例输入，不是原书数据；结果只报数，不给倾向性结论。
   </view>
 
   <view class="chip-row">
@@ -10,12 +12,18 @@
 
   <view class="card" style="margin-top:24rpx" wx:if="{{active}}">
     <text class="t-title">{{active.name}}</text>
-    <text class="t-small" style="display:block;margin-top:8rpx">相关讨论在{{active.back}}，计算口径由本页给出，不代表原书结论。</text>
+    <text class="t-small" style="display:block;margin-top:10rpx">{{active.intro}}</text>
+    <text class="t-mute" style="display:block;margin-top:8rpx">相关讨论在{{active.back}}；计算口径由本页给出，不代表原书结论。</text>
 
     <view class="field" wx:for="{{fields}}" wx:key="key">
       <text class="field-label">{{item.label}}</text>
-      <input class="field-input" type="digit" value="{{item.value}}"
+      <input wx:if="{{item.type !== 'choice'}}" class="field-input" type="digit" value="{{item.value}}"
              data-index="{{index}}" bindinput="onInput" />
+      <view wx:else class="choice-row">
+        <text class="chip {{item.value === opt.value ? 'chip-on' : ''}}"
+              wx:for="{{item.options}}" wx:for-item="opt" wx:for-index="oi" wx:key="value"
+              data-index="{{index}}" data-value="{{opt.value}}" bindtap="onChoice">{{opt.label}}</text>
+      </view>
     </view>
 
     <view wx:if="{{error}}" class="notice notice-danger" style="margin-top:16rpx">{{error}}</view>
@@ -25,19 +33,24 @@
   <block wx:if="{{results.length > 0}}">
     <view class="section-head"><text class="section-title">计算结果</text><text class="section-label">纯前端</text></view>
     <view class="card">
-      <view class="calc-row" wx:for="{{results}}" wx:key="label">
-        <text class="t-small">{{item.label}}</text>
-        <text class="calc-value">{{item.value}}</text>
+      <view class="calc-item" wx:for="{{results}}" wx:key="label">
+        <view class="calc-row">
+          <text class="t-small calc-label">{{item.label}}</text>
+          <text class="calc-value">{{item.value}}</text>
+        </view>
+        <text class="calc-note" wx:if="{{item.note}}">{{item.note}}</text>
       </view>
     </view>
     <view class="notice notice-blue">
-      按你输入的数字计算，不构成投资或职业建议。同一笔钱的机会成本、政策变化和当地口径都没有计入。
+      按你输入的数字计算，不构成投资或职业建议。利率、政策、通胀与个人涨薪曲线都可能变，实际以银行还款计划书与社保核定为准。
     </view>
     <button class="btn btn-ghost btn-sm" bindtap="goCatalog">去知识库看{{active.back}}</button>
   </block>
 
   <view class="disclaimer">
-    四个计算器均为简化模型：养老只算本金回收、房贷用单利近似、养育按固定增长率外推、读书只算收入差。
-    默认值是示例占位，不是书中数据，也不是任何机构的测算结果。
+    模型口径：养老保险只算个人账户（计发月数表 + 调待 + 折现，不含基础养老金与过渡性养老金）；
+    房贷按真实摊销公式（不含违约金、手续费与利率重定价）；
+    养育按学前 / 义务教育 / 高中三段计通胀（不含择校、留学等一次性大额支出）；
+    读书只算学费与收入差（不含贷款利息、失业风险与涨薪曲线）。
   </view>
 </view>

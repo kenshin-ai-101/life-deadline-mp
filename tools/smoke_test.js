@@ -316,7 +316,77 @@ ok('章节点赞两本书互不影响', store.toggleChapterLike('social', 2) ===
 ok('clearAll 连章节收藏一起清', (store.clearAll(),
   !store.isChapterFavorite('social', 2) && !store.isChapterLiked('social', 2)));
 
-console.log('\n[12] 清理');
+console.log('\n[12] 算账器真实口径模型');
+const calc = require(path.join(ROOT, 'utils/calc-models.js'));
+const modelOf = key => calc.MODELS.filter(m => m.key === key)[0];
+const runModel = (key, patch) => {
+  const m = modelOf(key);
+  const v = {};
+  m.fields.forEach(f => { v[f.key] = f.value; });
+  Object.assign(v, patch || {});
+  return m.calc(v);
+};
+const rowOf = (rows, label) => (rows || []).filter(r => r.label.indexOf(label) > -1)[0] || { value: '' };
+// 等额本息：100 万 / 30 年 / 4.9% 月供 5307.27 元（行业标准试算值）
+ok('等额本息月供与标准试算一致',
+  Math.abs(calc.annuityPayment(1000000, 4.9, 360) - 5307.27) < 0.02,
+  calc.annuityPayment(1000000, 4.9, 360).toFixed(2));
+// 等额本金总利息 = P·i·(n+1)/2
+const ep = calc.equalPrincipal(1000000, 4.9, 360);
+ok('等额本金总利息用真实摊销口径',
+  Math.abs(ep.totalInterest - 1000000 * (4.9 / 1200) * 361 / 2) < 1,
+  ep.totalInterest.toFixed(2));
+// 养老：60 岁计发月数 139，个人账户月发 = 储存额 / 139
+ok('60 岁计发月数 139 / 55 岁 170 / 50 岁 195',
+  calc.pensionMonthsOf(60) === 139 && calc.pensionMonthsOf(55) === 170 && calc.pensionMonthsOf(50) === 195);
+const pen = runModel('pension');
+ok('个人账户养老金 = 储存额 ÷ 计发月数', rowOf(pen, '个人账户养老金').value === '863 元/月',
+  rowOf(pen, '个人账户养老金').value);
+ok('个人账户回本 = 计发月数（139 个月 · 11.6 年）',
+  rowOf(pen, '个人账户回本').value === '139 个月 · 11.6 年', rowOf(pen, '个人账户回本').value);
+ok('养老 60 岁退休后领取 3.3 年收回个人缴费', /^39 个月/.test(rowOf(pen, '名义回本').value),
+  rowOf(pen, '名义回本').value);
+// 房贷：缩期限 / 减月供两条路径都要算得出来，且缩期限省息更多
+const short = runModel('mortgage', { strategy: 'shorten' });
+const reduce = runModel('mortgage', { strategy: 'reduce' });
+const saveOf = rows => Number(rowOf(rows, '可省利息').value.replace(/[^\d]/g, ''));
+ok('等额本息缩期限：200 期（缩短 40 期）',
+  /^200 期（缩短 40 期）/.test(rowOf(short, '剩余期数').value), rowOf(short, '剩余期数').value);
+ok('缩期限比减月供省更多利息', saveOf(short) > saveOf(reduce) && saveOf(reduce) > 0,
+  saveOf(short) + ' vs ' + saveOf(reduce));
+ok('减月供后月供确实下降',
+  Number(rowOf(reduce, '新月供').value.replace(/[^\d]/g, '')) < 4640,
+  rowOf(reduce, '新月供').value);
+const eqShort = runModel('mortgage', { method: 'equal', strategy: 'shorten' });
+const eqReduce = runModel('mortgage', { method: 'equal', strategy: 'reduce' });
+ok('等额本金两条路径都能算', rowOf(eqShort, '剩余期数').value !== '' && rowOf(eqReduce, '新月供').value !== '');
+// 养育：6×3 万 + 9×2 万 + 3×3.5 万 = 46.5 万（今天的钱）
+const kid = runModel('child', { inflation: '0' });
+ok('养育 18 年分段累计 = 46.5 万（不计通胀）',
+  rowOf(kid, '名义').value === '465,000 元', rowOf(kid, '名义').value);
+ok('零通胀时名义值等于今天的钱',
+  rowOf(kid, '折合今天的钱').value === rowOf(kid, '名义').value);
+const kidInf = runModel('child');
+ok('计通胀后名义支出高于购买力', Number(rowOf(kidInf, '名义').value.replace(/[^\d]/g, '')) > 465000);
+ok('养育分段年数合计 18 年（年均 = 总额 ÷ 18）',
+  rowOf(kid, '年均').value === '25,833 元' && /第 16 年/.test(rowOf(kid, '最高一年').note || ''),
+  rowOf(kid, '年均').value + ' / ' + rowOf(kid, '最高一年').note);
+// 读书：学费 8000 + 少挣 60000 共 4 年 = 27.2 万，收入差 3 万/年 → 毕业后 9.1 年回本
+const study = runModel('study');
+ok('读书期总投入含学费', rowOf(study, '读书期总投入').value === '272,000 元',
+  rowOf(study, '读书期总投入').value);
+ok('回本时点 = 第 13.1 年', rowOf(study, '回本时点').value === '第 13.1 年',
+  rowOf(study, '回本时点').value);
+ok('折现后净现值小于未折现净收益',
+  Number(rowOf(study, 'NPV').value.replace(/[^\d]/g, '')) < 778000,
+  rowOf(study, 'NPV').value);
+ok('输入非法时返回 null（不会算出假数）',
+  modelOf('mortgage').calc({ principal: '100', rate: '3', months: '12', prepay: '200' }) === null &&
+  modelOf('pension').calc({ age: '60', paid: '0', monthly: '3000', growth: '3', discount: '2' }) === null);
+ok('四个模型都有字段 / 口径 / 非法提示',
+  calc.MODELS.length === 4 && calc.MODELS.every(m => m.fields.length >= 3 && m.intro && m.invalid && m.calc));
+
+console.log('\n[13] 清理');
 store.clearAll();
 ok('清空后无事件', store.getEvents().length === 0);
 ok('清空后无成员', store.getMembers().length === 0);

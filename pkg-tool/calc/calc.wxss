@@ -1,1 +1,12 @@
 /* 算账器 · 页面局部样式，全局样式见 app.wxss */
+
+/* 选择型字段：chip 自带右/下外边距，这里只负责换行 */
+.choice-row { display: flex; flex-wrap: wrap; padding-top: 4rpx; }
+
+/* 结果行：标签左、数值右，口径说明另起一行 */
+.calc-item { border-bottom: 1rpx solid #E5E7E0; padding: 18rpx 0; }
+.calc-item:last-child { border-bottom: none; }
+.calc-item .calc-row { border-bottom: none; padding: 0; }
+.calc-label { flex: 1; min-width: 0; padding-right: 20rpx; }
+.calc-item .calc-value { flex: none; white-space: nowrap; text-align: right; }
+.calc-note { display: block; margin-top: 8rpx; font-size: 21rpx; line-height: 1.7; color: #727B75; }
