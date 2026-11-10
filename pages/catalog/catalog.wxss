@@ -19,7 +19,7 @@ page { background: #F6F5F0; }
   letter-spacing: -1.2rpx;
   color: #242E2B;
 }
-.lib-nav-right { display: flex; align-items: center; margin-right: 190rpx; }
+.lib-nav-right { display: flex; align-items: center; }
 .lib-search {
   width: 72rpx;
   height: 72rpx;

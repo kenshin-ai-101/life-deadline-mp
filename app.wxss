@@ -12,6 +12,9 @@ page {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 28rpx;
   line-height: 1.6;
+  /* iOS 横屏/大字号下浏览器会二次放大字体，关掉以保持 rpx 比例 */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 button { border-radius: 12rpx; padding: 0; }
@@ -89,10 +92,9 @@ button::after { border: none; }
 .field-input { font-size: 30rpx; color: #1F2A37; width: 100%; }
 .picker-value { font-size: 30rpx; color: #226B60; }
 
-/* 网格 */
-.grid-2 { display: flex; flex-wrap: wrap; }
-.grid-2 > view { width: calc(50% - 10rpx); }
-.grid-2 > view:nth-child(odd) { margin-right: 20rpx; }
+/* 网格（两列统一写法：space-between + 略小于一半的宽度，避免亚像素舍入导致换行，见 pages/index/index.wxss 注释） */
+.grid-2 { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.grid-2 > view { width: calc(50% - 10rpx); box-sizing: border-box; }
 
 /* ---------- 通用交互组件 ---------- */
 .tag-line { display: flex; flex-wrap: wrap; margin-top: 12rpx; }
@@ -164,7 +166,6 @@ button::after { border: none; }
 .fake-search { background: #FFFDF9; border: 1rpx solid #E5E7E0; border-radius: 12rpx; padding: 20rpx 24rpx; color: #8A94A6; font-size: 27rpx; }
 .filter-btn { margin-left: 16rpx; background: #E5EEE7; color: #226B60; border-radius: 12rpx; padding: 20rpx 28rpx; font-size: 27rpx; font-weight: 600; box-shadow: inset 0 0 0 2rpx #226B60; }
 .catalog-meta { font-size: 21rpx; color: #8A94A6; letter-spacing: .04em; margin: 0 4rpx 20rpx; }
-.catalog-layout { display: flex; height: calc(100vh - 260rpx); background: #FFFDF9; border-radius: 14rpx; overflow: hidden; }
 .sec-col { width: 210rpx; flex: 0 0 210rpx; height: 100%; background: #EFEEE7; border-right: 1rpx solid #E5E7E0; }
 .sec-cell { padding: 22rpx 18rpx; border-bottom: 1rpx solid #E5E7E0; }
 .sec-cell.on { background: #FFFDF9; border-left: 6rpx solid #226B60; }
@@ -217,9 +218,8 @@ button::after { border: none; }
 .elder-plain { display: block; font-size: 42rpx; color: #1B2B41; line-height: 1.9; margin-top: 16rpx; }
 .elder-calls { margin-top: 48rpx; padding: 32rpx; background: #EFEEE7; border-radius: 16rpx; }
 .elder-call-title { display: block; font-size: 38rpx; font-weight: 600; color: #16233A; margin-bottom: 24rpx; }
-.elder-call-grid { display: flex; flex-wrap: wrap; }
+.elder-call-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
 .elder-call { width: calc(50% - 12rpx); margin-bottom: 20rpx; background: #FFFDF9; border: 3rpx solid #226B60; border-radius: 14rpx; padding: 24rpx 12rpx; text-align: center; box-sizing: border-box; }
-.elder-call:nth-child(odd) { margin-right: 24rpx; }
 .elder-call-no { display: block; font-size: 48rpx; font-weight: 700; color: #226B60; }
 .elder-call-label { display: block; font-size: 32rpx; color: #33445C; margin-top: 6rpx; }
 .elder-foot { margin-top: 40rpx; }
@@ -234,9 +234,8 @@ button::after { border: none; }
 .aid-hero-desc { display: block; font-size: 24rpx; opacity: .9; }
 .aid-call120 { display: inline-block; margin-top: 24rpx; padding: 14rpx 30rpx; background: #FFFDF9; color: #C0392B; border-radius: 10rpx; font-size: 30rpx; font-weight: 600; }
 .aid-notice { margin: 20rpx 0; padding: 20rpx 24rpx; background: #FBE9E6; border-left: 6rpx solid #C0392B; border-radius: 8rpx; color: #8C2C20; font-size: 25rpx; line-height: 1.7; }
-.aid-grid { display: flex; flex-wrap: wrap; }
+.aid-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
 .aid-cell { width: calc(50% - 10rpx); margin-bottom: 20rpx; background: #FFFDF9; border: 1rpx solid #E5E7E0; border-left: 6rpx solid #C0392B; border-radius: 12rpx; padding: 24rpx 20rpx; box-sizing: border-box; }
-.aid-cell:nth-child(odd) { margin-right: 20rpx; }
 .aid-cell-no { font-size: 21rpx; color: #8A94A6; letter-spacing: .1em; }
 .aid-cell-name { display: block; font-size: 30rpx; font-weight: 600; color: #1F2A37; margin-top: 8rpx; }
 .aid-cell-sub { display: block; font-size: 22rpx; color: #8A94A6; margin-top: 8rpx; }
@@ -266,10 +265,41 @@ button::after { border: none; }
 .calc-row { display: flex; align-items: baseline; justify-content: space-between; padding: 18rpx 0; border-bottom: 1rpx solid #E5E7E0; }
 .calc-row:last-child { border-bottom: none; }
 .calc-value { font-size: 34rpx; font-weight: 600; color: #226B60; }
-.stat-grid { display: flex; flex-wrap: wrap; margin-top: 20rpx; }
-.stat-cell { width: calc(33.333% - 14rpx); margin: 0 20rpx 20rpx 0; background: #FFFDF9; border-radius: 12rpx; padding: 22rpx 16rpx; box-sizing: border-box; }
-.stat-cell:nth-child(3n) { margin-right: 0; }
+/* 三列统计：5 张卡=3+2，flex+margin 方案要么恰好 100% 换行、要么末行两张被 space-between 拉开；
+   grid 的列轨道由引擎精确均分，永不溢出换行，末行靠左。iOS 10.3+/XWeb 均支持。 */
+.stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20rpx; margin-top: 20rpx; }
+.stat-cell { background: #FFFDF9; border-radius: 12rpx; padding: 22rpx 16rpx; box-sizing: border-box; }
 .stat-num { display: block; font-size: 44rpx; font-weight: 300; color: #226B60; line-height: 1.2; }
 .limit-row { display: flex; padding: 12rpx 0; }
 .limit-dot { color: #E8A33D; font-size: 30rpx; margin-right: 14rpx; line-height: 1.4; }
 .track-row { padding: 12rpx 0; border-bottom: 1rpx solid #E5E7E0; }
+
+/* ---------- 屏幕自适应 ----------
+ * 单位策略：布局与字号一律 rpx（750rpx = 屏宽），基线随屏幕宽度自动折算，
+ * 所以不做「每个机型一套样式」。这里只补三类 rpx 覆盖不到的情况：
+ *   ① 底部安全区（全面屏 Home 条）
+ *   ② 超宽窗口（微信 PC 端拉伸 / 折叠屏展开 / 平板分屏）—— rpx 会等比放大到失控
+ *   ③ 超小屏（320pt）—— 21~23rpx 折算后只剩 9~10px，低于可读下限
+ */
+
+/* ① 底部安全区 */
+.safe-bottom { padding-bottom: calc(24rpx + env(safe-area-inset-bottom)); }
+
+/* ② 超宽窗口：内容限宽居中，避免一行铺满上千 px；底部固定栏跟随同样宽度 */
+@media (min-width: 600px) {
+  .page, .page-wide,
+  .lib-page, .bd-page, .ta-page, .aid-page, .aid-detail-page,
+  .elder-page, .rd-page {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .rd-footer { max-width: 600px; margin: 0 auto; }
+}
+
+/* ③ 超小屏：把低于可读下限的字号抬上来 */
+@media (max-width: 340px) {
+  .t-mute, .t-mono, .section-label, .catalog-meta { font-size: 24rpx; }
+  .tag { font-size: 22rpx; }
+  .page, .page-wide { padding-left: 20rpx; padding-right: 20rpx; }
+}

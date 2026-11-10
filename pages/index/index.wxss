@@ -13,13 +13,15 @@
 .aid-desc { display: block; font-size: 24rpx; opacity: .9; }
 .aid-arrow { font-size: 56rpx; font-weight: 200; opacity: .8; margin-left: 16rpx; }
 
-.event-grid { display: flex; flex-wrap: wrap; }
+/* 两列网格：宽度略小于一半 + space-between 分配间距。
+   不能用「50%-x 加 margin 恰好等于 100%」的写法——rpx→px 逐元素舍入后
+   总和会超出容器零点几像素，卡片被挤到下一行（一行 1 卡、右侧留白）。 */
+.event-grid { display: flex; flex-wrap: wrap; justify-content: space-between; }
 .event-cell {
   width: calc(50% - 10rpx); margin-bottom: 20rpx;
   background: #FFFDF9; border: 1rpx solid #E5E7E0; border-radius: 14rpx;
   padding: 22rpx 20rpx; box-sizing: border-box;
 }
-.event-cell:nth-child(odd) { margin-right: 20rpx; }
 .event-badge {
   display: inline-flex; align-items: center; justify-content: center;
   width: 48rpx; height: 48rpx; border-radius: 10rpx;

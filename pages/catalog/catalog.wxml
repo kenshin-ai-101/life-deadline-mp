@@ -1,7 +1,7 @@
 <view class="lib-page">
   <!-- 自定义大标题导航：左侧书名式大标题，右侧圆形搜索（避开系统胶囊） -->
   <view class="lib-status" style="height:{{statusBarHeight}}px"></view>
-  <view class="lib-nav">
+  <view class="lib-nav" style="height:{{navBarHeight}}px;padding-right:{{navPadRight}}px">
     <view class="lib-nav-title">知识库</view>
     <view class="lib-nav-right">
       <view class="lib-search" bindtap="goSearch" hover-class="lib-search-hover" aria-label="搜索">

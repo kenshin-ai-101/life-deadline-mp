@@ -3,6 +3,7 @@
 'use strict';
 
 const profile = require('../../utils/profile.js');
+const viewport = require('../../utils/viewport.js');
 const store = require('../../utils/store.js');
 const lib = require('../../utils/library.js');
 const rec = require('../recommend.js');
@@ -18,6 +19,8 @@ Page({
   data: {
     loading: true,
     statusBarHeight: 20,
+    navBarHeight: 44,
+    navPadRight: 96,
     empty: false,
     noResults: false,
     offline: true,
@@ -29,9 +32,12 @@ Page({
   },
 
   onLoad() {
-    let h = 20;
-    try { h = (wx.getSystemInfoSync() || {}).statusBarHeight || 20; } catch (e) { /* 兜底 */ }
-    this.setData({ statusBarHeight: h });
+    const L = viewport.layout();
+    this.setData({
+      statusBarHeight: L.statusBarHeight,
+      navBarHeight: L.navBarHeight,
+      navPadRight: L.navPadRight
+    });
     const p = profile.getProfileV2();
     if (!p || !(p.topicIds || []).length) {
       this.setData({ empty: true, loading: false });

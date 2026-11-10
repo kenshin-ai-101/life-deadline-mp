@@ -2,19 +2,26 @@
 // 书架（书籍大卡）/ 主题（宫格）双 tab；书籍详情、主题聚合、章节阅读为下游页面。
 'use strict';
 const lib = require('../../utils/library.js');
+const viewport = require('../../utils/viewport.js');
 
 Page({
   data: {
     tab: 'shelf',
     books: [],
     topics: [],
-    statusBarHeight: 20
+    statusBarHeight: 20,
+    navBarHeight: 44,
+    navPadRight: 96
   },
 
   onLoad() {
-    let h = 20;
-    try { h = (wx.getSystemInfoSync() || {}).statusBarHeight || 20; } catch (e) { /* 兜底 */ }
-    this.setData({ statusBarHeight: h });
+    // 导航条高度与胶囊留位按机型和胶囊实测值算，不再写死 44px / 190rpx
+    const L = viewport.layout();
+    this.setData({
+      statusBarHeight: L.statusBarHeight,
+      navBarHeight: L.navBarHeight,
+      navPadRight: L.navPadRight
+    });
   },
 
   onShow() { this.render(); },

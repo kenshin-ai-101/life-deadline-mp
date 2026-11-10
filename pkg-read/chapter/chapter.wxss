@@ -1,6 +1,7 @@
 /* 章节阅读 · 纸面卡片 + NO. 条目流 */
 page { background: #F6F5F0; }
-.rd-page { padding: 24rpx 32rpx 200rpx; box-sizing: border-box; }
+/* 底部留白 = 固定操作栏高度 + 全面屏安全区，避免最后一条被遮住 */
+.rd-page { padding: 24rpx 32rpx calc(170rpx + env(safe-area-inset-bottom)); box-sizing: border-box; }
 
 .rd-header {
   padding: 32rpx;

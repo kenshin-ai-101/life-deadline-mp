@@ -4,6 +4,7 @@
 'use strict';
 
 const lib = require('../../utils/library.js');
+const viewport = require('../../utils/viewport.js');
 const profile = require('../../utils/profile.js');
 
 /* 设计稿：短名 / 一句画像 / 图标（图标为本工程 images/ 下同名资源） */
@@ -36,6 +37,8 @@ Page({
   data: {
     step: 1,
     statusBarHeight: 20,
+    navBarHeight: 44,
+    navPadRight: 96,
     topics: [],
     sourceCount: 0,
     sourceSteps: 0,
@@ -47,8 +50,7 @@ Page({
   },
 
   onLoad(options) {
-    let h = 20;
-    try { h = (wx.getSystemInfoSync() || {}).statusBarHeight || 20; } catch (e) { /* 兜底 */ }
+    const L = viewport.layout();
     const topics = lib.getTopics().filter(t => t.primary).map(t => ({
       id: t.id,
       name: t.name,
@@ -60,7 +62,9 @@ Page({
     const pre = options.topic && topics.some(t => t.id === options.topic) ? options.topic : '';
     const books = lib.getBooks().filter(b => b.capabilities && b.capabilities.matchable);
     this.setData({
-      statusBarHeight: h,
+      statusBarHeight: L.statusBarHeight,
+      navBarHeight: L.navBarHeight,
+      navPadRight: L.navPadRight,
       topics: topics,
       sel: pre,
       sourceCount: books.length,
