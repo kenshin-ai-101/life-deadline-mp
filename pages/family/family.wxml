@@ -33,7 +33,7 @@
   </view>
 
   <button class="btn btn-primary" style="margin-top:24rpx" bindtap="openForm" wx:if="{{members.length < maxLimit}}">＋ 新建成员卡</button>
-  <view wx:else class="notice">本地演示版最多 {{maxLimit}} 位成员（免费 {{freeLimit}} 位，家庭版 {{maxLimit}} 位）。</view>
+  <view wx:else class="notice">最多可添加 {{maxLimit}} 位成员。</view>
 
   <view class="section-head"><text class="section-title">给长辈用</text><text class="section-label">ELDER MODE</text></view>
   <view class="card elder-entry" bindtap="goElder">
@@ -44,7 +44,7 @@
 
   <view class="disclaimer">
     分享到家庭群的卡片只含成员称呼、待办数量和一句摘要，不带任何健康状况细节。
-    静态版没有账号体系，跨设备同步与成员绑定需在接入云服务后启用。
+    成员卡默认只存在本机；开启云同步后，同一微信账号换设备可自动恢复。
   </view>
 
   <view wx:if="{{showForm}}" class="mask" bindtap="closeForm">

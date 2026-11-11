@@ -46,7 +46,7 @@
     <view class="list-item row-between" bindtap="copyFeedback"><text class="t-body">反馈时限错误</text><text class="chev">›</text></view>
   </view>
 
-  <view class="section-head"><text class="section-title">这一版没做的</text><text class="section-label">HONEST LIMITS</text></view>
+  <view class="section-head"><text class="section-title">已知边界</text><text class="section-label">HONEST LIMITS</text></view>
   <view class="card">
     <view class="limit-row" wx:for="{{limits}}" wx:key="*this">
       <text class="limit-dot">·</text><text class="t-small">{{item}}</text>
@@ -64,7 +64,7 @@
   <button class="btn btn-outline" style="margin-top:24rpx;color:#C0392B" bindtap="clearAll">清空全部数据（本机 + 云端）</button>
 
   <view class="disclaimer">
-    原书内容采用 CC BY-NC-SA 4.0 许可，本工程为学习演示用的派生实现。
-    时限规则仅供提示，正式使用前须逐条核对法条与当地规定；本工具不替代专业医疗、法律与急救建议。
+    内容改编自开源作品《高性价比人生指南》（作者 eternity4719，CC BY-NC-SA 4.0）与《人情世故指南》（作者 changxueyi，CC BY 4.0），本小程序免费提供、不用于商业目的，并以相同许可共享。
+    时限规则仅供提示，涉及法条与地方规定请以官方发布为准；本工具不替代专业医疗、法律与急救建议。
   </view>
 </view>

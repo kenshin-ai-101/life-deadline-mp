@@ -9,7 +9,7 @@
 
   <block wx:elif="{{viewState === 'ready'}}">
     <view wx:if="{{!notifyHintDismissed}}" class="notice notice-blue">
-      静态版没有服务端，订阅消息暂不下发；到期提醒由红点、首页提示条和这张清单兜底。
+      到期提醒由红点、首页提示条和这张清单呈现，暂未开放微信订阅消息推送。
       <text class="hint-dismiss" bindtap="dismissHint">知道了</text>
     </view>
 

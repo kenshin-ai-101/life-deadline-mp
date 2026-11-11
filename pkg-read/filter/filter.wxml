@@ -45,5 +45,5 @@
     </view>
   </block>
 
-  <view class="disclaimer">人群标签来自上游条目的成本标签；静态版没有账号体系，不会自动按家庭成员预选。</view>
+  <view class="disclaimer">人群标签来自上游条目的成本标签，不会按家庭成员自动预选。</view>
 </view>

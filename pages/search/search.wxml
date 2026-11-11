@@ -57,6 +57,6 @@
       <view class="tag-line" wx:if="{{item.disputed}}"><text class="tag tag-warn">有争议 · 正反并列</text></view>
     </view>
 
-    <view class="disclaimer">排序：标题命中优先于说人话命中，同权重按证据等级。静态版暂不支持拼音检索。</view>
+    <view class="disclaimer">排序：标题命中优先于说人话命中，同权重按证据等级。不支持拼音检索。</view>
   </block>
 </view>

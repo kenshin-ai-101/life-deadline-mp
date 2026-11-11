@@ -41,12 +41,12 @@
     <view class="section-head"><text class="section-title">长辈端</text></view>
     <view class="card" bindtap="goElder">
       <text class="t-title">用大字模式打开这份清单</text>
-      <text class="t-small" style="display:block;margin-top:10rpx">只读、一屏、一键拨号。语音朗读需接入微信同声传译插件，静态版暂未提供。</text>
+      <text class="t-small" style="display:block;margin-top:10rpx">只读、一屏、一键拨号。暂未提供语音朗读。</text>
     </view>
 
     <view class="disclaimer">
       分享到家庭群的卡片只含成员称呼、待办数量与一句摘要，不含健康状况细节。
-      静态版没有账号体系，跨设备指派与同步需在接入云服务后启用。
+      成员卡默认只存在本机，开启云同步后可在同一账号的设备间恢复。
     </view>
   </block>
 </view>

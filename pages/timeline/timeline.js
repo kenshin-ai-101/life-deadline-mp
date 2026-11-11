@@ -175,18 +175,35 @@ Page({
 
   uploadReceipt(e) {
     const id = e.currentTarget.dataset.id;
-    wx.chooseMedia({
-      count: 5,
-      mediaType: ['image'],
-      sizeType: ['compressed'],
-      success: res => {
-        const paths = (res.tempFiles || []).map(f => f.tempFilePath);
-        store.addReceipt(id, '', paths);
-        wx.showToast({ title: '回执已存到本机', icon: 'none' });
-        this.refresh();
-      },
-      fail: () => {}
-    });
+    const pick = () => {
+      wx.chooseMedia({
+        count: 5,
+        mediaType: ['image'],
+        sizeType: ['compressed'],
+        success: res => {
+          const paths = (res.tempFiles || []).map(f => f.tempFilePath);
+          store.addReceipt(id, '', paths);
+          wx.showToast({ title: '回执已存到本机', icon: 'none' });
+          this.refresh();
+        },
+        fail: err => {
+          // 用户主动取消不打扰；其余情况（隐私授权未同意 / 权限被系统拒绝）必须给反馈，
+          // 否则点了没有任何反应，用户会以为功能坏了
+          const msg = String((err && err.errMsg) || '');
+          if (msg.indexOf('cancel') >= 0) return;
+          wx.showToast({ title: '没能打开相册，请检查隐私授权或系统权限', icon: 'none' });
+        }
+      });
+    };
+    // 选相册属于隐私接口：基础库 2.32.3+ 要求先确认已同意《用户隐私保护指引》
+    if (wx.requirePrivacyAuthorize) {
+      wx.requirePrivacyAuthorize({
+        success: pick,
+        fail: () => wx.showToast({ title: '需同意隐私保护指引后才能选择图片', icon: 'none' })
+      });
+    } else {
+      pick();
+    }
   },
 
   archiveEvent() {

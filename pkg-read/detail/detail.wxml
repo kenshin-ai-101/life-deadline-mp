@@ -105,7 +105,7 @@
       <text class="t-title">变更雷达</text>
       <text class="t-small" style="display:block;margin-top:10rpx">{{bookTitle}} · 当前数据 {{versionLabel}} · 你上次看到 {{seenCommit}}</text>
       <text class="t-small" style="display:block;margin-top:8rpx">内容许可：{{bookLicense}}</text>
-      <text class="t-small" style="display:block;margin-top:8rpx">静态版只比对本地数据版本，不会自动推送。正式版需由服务端比对上游 updates.json，且政策类条目必须人工复核后才下发。</text>
+      <text class="t-small" style="display:block;margin-top:8rpx">内容更新随版本发布，不做热更新；政策类条目须人工复核后才调整。</text>
     </view>
 
     <view wx:if="{{disclaimer}}" class="notice notice-danger" style="margin-top:24rpx">{{disclaimer}}</view>

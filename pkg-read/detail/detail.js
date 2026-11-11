@@ -83,8 +83,8 @@ Page({
       tip: it.tip || '',
       versionLabel: isSocial ? (book.updatedAt || '2026-10-23') : (meta.commit + ' · ' + meta.builtAt),
       footerNote: isSocial
-        ? '字段顺序与文案来自《人情世故指南》原书，机器编译，未经逐条人工复核。内容许可 CC BY 4.0。本工具不替代专业法律、医疗与急救建议。'
-        : '字段顺序与文案来自《高性价比人生指南》原书，机器编译，未经逐条人工复核。内容许可 CC BY-NC-SA 4.0。本工具不替代专业医疗、法律与急救建议。',
+        ? '字段顺序与文案整理自《人情世故指南》原书，尚未逐条人工复核。内容许可 CC BY 4.0。本工具不替代专业法律、医疗与急救建议。'
+        : '字段顺序与文案整理自《高性价比人生指南》原书，尚未逐条人工复核。内容许可 CC BY-NC-SA 4.0。本工具不替代专业医疗、法律与急救建议。',
       favorited: store.isFavorite(id),
       inTask: store.isItemInTask(id),
       seenCommit: store.read('ld_seen_commit', meta.commit),
